@@ -1,0 +1,2 @@
+# equilaterals
+Equilateral polygons families
