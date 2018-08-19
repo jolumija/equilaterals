@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
   <!-- Example of a polygon with the default fill -->
   <polygon points="0,100 50,25 50,75 100,0" />
