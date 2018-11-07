@@ -1,0 +1,73 @@
+<html>
+ <head>
+  <script type="text/javascript" src="js/svg.js"></script>
+  <script type="text/javascript" src="js/geom.js"></script>
+ </head>
+ <body>
+  <span>n = <input id="n" type="number" min="0" max="20"></span>
+  <span>size = <input id="size" type="number" min="1" max="40"></span>
+  <div id="canvas"></div>
+ </body>
+ <script>
+function star(S, g, diff, p, fill, rot, angles) {
+	var H = parseInt(S/2);
+	var Hu = H + diff;
+	var Hl = H - diff;
+	var p0 = [];
+	for (var i=0; i < S; i++) {
+		p0.push(Hu);
+		p0.push(Hl);
+	}
+	var x = g.polyline(rot, angles, p0);
+	var s = { stroke:"#000", fill:fill, opacity:0.0 };
+	s.stroke = "#000"; draw_polyline(p, g, x, s);
+	return x;
+}
+
+function draw(n, size) {
+	$("canvas").innerHTML = "";
+	var p = svgG(svgRoot($("canvas"), 800, 600), [400,300], size);
+	var red = "rgba(255,0,0,0.4)";
+	var ora = "rgba(255,128,0,0.4)";
+	var yel = "rgba(255,255,0,0.4)";
+	var gre = "rgba(0,255,0,0.4)";
+	var cya = "rgba(0,255,255,0.4)";
+	var blu = "rgba(0,127,255,0.4)";
+	var mag = "rgba(255,0,255,0.4)";
+	var tra = "transparent";
+
+	//n = 8;
+	S = (6 + 4*n) / 2;
+	g = new geometry(S);
+	var x1, x2;
+	x1 = star(S, g, 0, p, red, null, 0);
+	if (n >= 1) x2 = star(S, g, 1, p, ora, x1[2*S-1], n+2);
+	if (n >= 2)      star(S, g, 2, p, yel, x1[2*S-2], 2*n + 1.5);
+	if (n >= 3)      star(S, g, 3, p, gre, x1[2*S-3], n+1);
+	if (n >= 4)      star(S, g, 4, p, cya, x1[S+2],   n-4);
+	if (n >= 5)      if (x2) star(S, g, 5, p, blu, x2[S-4],   3.5);
+
+	if (n > 6)      star(S, g, 6, p, mag, x1[S+2], n-6);
+
+	star(S, g, n, p, tra, x1[2], 2*n+1.5);
+	if (x2) star(S, g, n, p, tra, x2[2*S-4], 5);
+
+	if (n >= 4) star(S, g, n, p, tra, x1[S+6], n+2);
+}
+
+$("size").onclick = 
+$("n").onclick = function() {
+	var n = parseInt($("n").value);
+	var s = parseInt($("size").value);
+	draw(n, s);
+}
+$("n").value = 8;
+$("size").value = 20;
+$("n").click();
+
+
+
+ </script>
+
+
+</html>

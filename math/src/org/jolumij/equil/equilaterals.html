@@ -1,0 +1,43 @@
+<html>
+ <head>
+<style>
+body { font-family: Arial; }
+.circle { stroke:#000; stroke-width:3; fill:#fff; }
+.dot { fill:black; }
+.ray { stroke-width:4 }
+.number { font-family:Arial; font-size:15; stroke:#000; fill; #000; text-anchor: middle; alignment-baseline:middle; }
+th { border:1 solid #888; background:#888; color:#fff; padding:2px 5px; }
+td { border-bottom:1; color:#888; text-align: right; padding: 2px 5px; }
+span.button { margin:3px; padding:3px; border:1px solid #888; background:#eee; }
+span.button:hover { background:#ddd; cursor:pointer; }
+</style>
+  <script type="text/javascript" src="equilaterals.js"></script>
+ </head>
+ <body>
+ <div>
+  <span class="button" onclick="circles('c10','c12');">Circles</span>
+  <span class="button" onclick="vertices('c10','c12')">Vertices</span>
+  <span>
+   <select id="vertices-number">
+    <option name="_6">6</option>
+    <option name="_7">7</option>
+   </select>
+  </span>
+ </div>
+ <h3>C10</h3>
+ <div id="c10"></div>
+ <h3>C12</h3>
+ <div id="c12"></div>
+ <script>
+function ready() {
+	count($("c10"));
+	//vertices('c10','c12');
+}
+document.addEventListener("DOMContentLoaded", ready, false);
+ </script>
+ 
+ 
+ 
+ 
+ </body>
+</html>

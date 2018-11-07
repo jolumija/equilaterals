@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
+</script> 
+ <style>
+.row > * { vertical-align:top; display: inline-block;}
+ </style>
+</head>
+ <body>
+  <h1>Discrete angular rhombi</h1>
+<h2>Hexagons</h2>
+<h3>Particular n=4</h3>
+<div class="row">
+<img src="svg/rhombi.svg" width="400px">
+<div>
+Areas:
+\begin{align*}
+X_0 &= 2R_0 + R_1 \\
+X_1 &= - R_0 + R_1 + R_2  \\
+X_2 &= R_0 + R_2 + R_3 \\
+X_3 &= - R_0 + 2R_3 \\
+X &=
+\begin{bmatrix}
+ 2 & 1 & 0 & 0 \\
+-1 & 1 & 1 & 0 \\
+ 1 & 0 & 1 & 1 \\
+-1 & 0 & 0 & 2
+\end{bmatrix} R
+\end{align*}
+</div>
+</div>
+
+<h3>Generalization</h3>
+<div class="row">
+<img src="svg/rhombi-general.svg" width="400">
+<div>
+Areas ($\beta = \pi / n$) :
+\begin{align}
+R &=
+\begin{bmatrix}
+sin(\beta) \\
+sin(2\beta) \\
+\vdots \\
+sin(n\beta) \\
+sin[(n+1)\beta]
+\end{bmatrix} \\
+
+X & =
+\begin{bmatrix}
+1&1&0&0&\dots&0&0&0 \\
+0&1&1&0&\dots&0&0&0 \\
+0&0&1&1&\dots&0&0&0 \\
+\vdots&\vdots&\vdots&\vdots&\ddots&\vdots&\vdots&\vdots \\
+0&0&0&0&\dots&1&0&0 \\
+0&0&0&0&\dots&1&1&0 \\
+0&0&0&0&\dots&0&1&1 \\
+0&0&0&0&\dots&0&0&2 \\
+\end{bmatrix} R 
++
+\begin{bmatrix}
+1 \\
+-1 \\
+1 \\
+-1 \\
+1 \\
+-1 \\
+\vdots
+\end{bmatrix} R
+\end{align}
+</div>
+</div>
+
+<h2>Consecutive hexagons pairs</h2>
+<div class="row">
+<img src="svg/pairs.svg" width="400px">
+<div>
+Areas:
+\begin{align*}
+Y_0 = X_0 + X_1 &= R_0 + 2R_1 + R_2 \\
+Y_1 = X_1 + X_2 &= R_1 + 2R_2 + R_3 \\
+Y_2 = X_2 + X_3 &= R_2 + 3R_3 \\
+Y &=
+\begin{bmatrix}
+1 & 2 & 1 & 0 \\
+0 & 1 & 2 & 1 \\
+0 & 0 & 1 & 3
+\end{bmatrix} R
+\end{align*}
+</div>
+</div>
+
+<h2>Horns</h2>
+<div class="row">
+<img src="svg/horns.svg" width="400px">
+<div>
+Areas:
+\begin{align*}
+Z_0 &= X_0 = 2R_0 + R_1 \\
+Z_1 &= Z_0 + Y_1 = 2R_0 + 2R_1 + 2R_2 + R_3 \\
+Z_2 &= Z_1 + Y_2 = 2R_0 + 2R_1 + 3R_2 + 4R_3 \\
+Z_3 &= Z_2 + Y_0 = 3R_0 + 4R_1 + 4R_2 + 4R_3 \\
+Z &=
+\begin{bmatrix}
+2 & 1 & 0 & 0 \\
+2 & 2 & 2 & 1 \\
+2 & 2 & 3 & 4 \\
+3 & 4 & 4 & 4 
+\end{bmatrix} R
+\end{align*}
+</div>
+</div>
+
+<h2>Leaves</h2>
+<div class="row">
+<img src="svg/leaves.svg" width="400px">
+<div>
+Areas:
+\begin{align*}
+L_0 &= Z_0 = 2R_0 + R_1 \\
+L_1 &= Z_0 + Z_1 = 4R_0 + 3R_1 + 2R_2 + R_3 \\
+L_2 &= Z_0 + Z_1 + Z_2 = 6R_0 + 5R_1 + 5R_2 + 5R_3 \\
+L &=
+\begin{bmatrix}
+2 & 1 & 0 & 0 \\
+4 & 3 & 2 & 1 \\
+6 & 5 & 5 & 5 \\
+9 & 9 & 9 & 9
+\end{bmatrix} R \\
+ &=
+\begin{bmatrix}
+2&1&0&0 \\
+4&3&2&1 \\
+6&5&4&3 \\
+8&7&6&5 \\
+\end{bmatrix}
++
+\begin{bmatrix}
+0&0&0&0 \\
+0&0&0&0 \\
+0&0&1&2 \\
+1&2&3&4
+\end{bmatrix} R
+\end{align*}
+</div>
+</div>
+
+<h2>Stars</h2>
+<div class="row">
+<img src="svg/stars.svg" width="400px">
+<div>
+Areas:
+\begin{align*}
+S_0 &= 9R_1 \\
+S_1 &= 9(R_1 + R_3) \\
+S_2 &= 9(R_1 + R_2 + R_3) \\
+S_3 &= 9(R_0 + R_1 + R_2 + R_3) \\
+S &=
+\begin{bmatrix}
+0 & 9 & 0 & 0 \\
+0 & 9 & 0 & 9 \\
+0 & 9 & 9 & 9 \\
+9 & 9 & 9 & 9
+\end{bmatrix} R
+\end{align*}
+</div>
+</div>
+
+<h2>Crowns</h2>
+<h3>Crowns 9</h3>
+<div class="row">
+<img src="svg/crowns.svg" width="400px">
+<div>
+Areas:
+\begin{align*}
+2C_0 &= S_0 - L_0 = -2R_0 + 8R_1 \\
+2C_1 &= S_1 - L_1 = -4R_0 + 6R_1 - 2R_2 + 8R_3 \\
+2C_2 &= S_2 - L_2 = -6R_0 + 4R_1 + 4R_2 + 4R_3 \\
+2C_3 &= S_3 - L_3 = 0 \\
+C &=
+\begin{bmatrix}
+-1 & 4 & 0 & 0 \\
+-2 & 3 & -1 & 4 \\
+-3 & 2 & 2 & 2 \\
+\end{bmatrix} R
+\end{align*}
+</div>
+</div>
+
+<h3>Crowns 11</h3>
+<div class="row">
+<img src="svg/crowns-11.svg" width="400px">
+<div>Areas:
+\begin{align*}
+X_1 &= -R_0 + R_1 + R_2 \\
+X_3 &= -R_0 + R_3 + R_4 \\
+P_0 &= 4R_1 - R_2 \\
+P_1 &= -R_0 + R_1 + 2R_3 \\
+P_2 &= 2R_1 - R_2 + R_3 \\
+P_3 &= R_1 - R_2 + R_4 \\
+C_0 &= X_1 + P_0 \\
+    &= -R_0 + 5R_1 \\
+C_1 &= 2P_1 + P_2 \\
+    &= -2R_0 + 4R_1 - R_2 + 5R_3 \\
+C_2 &= 2X_3 + P_1 + 2P_3 \\
+    &= -3R_0 + 3R_1 - 2R_2 + 4R_3 + 4R_4 \\
+C_3 &= 2X_1 + 2X_3 \\
+    &= -4R_0 + 2R_1 + 2R_2 + 2R_3 + 2R_4 \\
+  C &=
+\begin{bmatrix}
+-1 & 5 &  0 & 0 & 0 \\
+-2 & 4 & -1 & 5 & 0 \\
+-3 & 3 & -2 & 4 & 4 \\
+-4 & 2 &  2 & 2 & 2
+\end{bmatrix} R
+\end{align*}
+</div>
+</div>
+
+<h3>Crowns 13</h3>
+<div class="row">
+<img src="svg/crowns-13.svg" width="400px">
+<div>Areas:
+\begin{align*}
+X_1 &= -R_0 + R_1 + R_2 \\
+X_3 &= -R_0 + R_3 + R_4 \\
+X_5 &= -R_0 + 2R_5 \\
+P_0 &= R_1 - R_2 + R_4 \\
+P_1 &= R_1 - R_2 + 2R_3 \\
+P_2 &= 2R_1 + R_3 - R_4 \\
+P_3 &= 5R_1 - R_2 \\
+C_0 &= X_1 + P_3 \\
+C_1 &= X_1 + X_3 + 2P_1 + P_2 \\
+C_2 &= 3X_5 + 2P_1 + P_2 \\
+C_3 &= 2X_3 + 2X_5 + 2P_0 + P_1 \\
+C_4 &= 2X_1 + 2X_3 + X_5 \\
+C &= 
+\begin{bmatrix}
+-1 & 6 &  0 & 0 &  0 & 0 \\
+-2 & 5 & -1 & 6 &  0 & 0 \\
+-3 & 4 & -2 & 5 & -1 & 6 \\
+-4 & 3 & -3 & 4 &  4 & 4 \\
+-5 & 2 &  2 & 2 &  2 & 2 \\
+\end{bmatrix} R
+\end{align*}
+</div>
+<div>
+Generalization:
+\begin{align*}
+C &= 
+\begin{bmatrix}
+-1 & n+1 &  0 & 0   &  0 & 0 \\
+-2 & n   & -1 & n   &  0 & 0 \\
+-3 & n-1 & -2 & n+1 & -1 & 0 \\
+-4 & n-2 & -3 & 0   &  0 & 0 \\
+-n & 0   &  0 & 0   &  0 & 0 \\
+\end{bmatrix}
++
+\begin{bmatrix}
+ 0 & 0 &  0 & 0 &  0 & 0 \\
+ 0 & 0 &  0 & 0 &  0 & 0 \\
+ 0 & 0 &  0 & 0 &  0 & 6 \\
+ 0 & 0 &  0 & 4 &  4 & 4 \\
+ 0 & 2 &  2 & 2 &  2 & 2 \\
+\end{bmatrix}
+\end{align*}
+</div>
+
+</div>
+
+
+
+<h2>Teeth</h2>
+<div class="row">
+<img src="svg/teeth.svg" width="400px">
+<div>
+Areas:
+\begin{align*}
+T_0 &= C_0 - X_1 = 3R_1 - R_2 \\
+T_1 &= C_1 - 2X_3 = 3R_1 - R_2 \\
+T_2 &= C_2 - 2X_1 - X_3 = 0 \\
+T &=
+\begin{bmatrix}
+0 & 3 & -1 & 0 \\
+0 & 3 & -1 & 0 \\
+\end{bmatrix} R
+\end{align*}
+</div>
+</div>
+
+
+
+Polygon:
+\begin{align*}
+	Z_0 + Z_1 + Z_2 + Z_3 = 9(R_0 + R_1 + R_2 + R3)
+
+\end{align*}
+
+Hexagons substractions:
+\begin{align*}
+X_0 - X_2 + X_3 = R_1 - R_2 + R_3 \\
+
+\end{align*}
+
+
+
+</div>
+<div>Rhombi areas ($b = a/2$):</div>
+<div>
+\begin{align*}
+R_0 &= \sin(b) \\
+R_1 &= \sin(2b) \\
+    &= 2\sin(b)\cos(b) \\
+R_2 &= \sin(3b) \\
+    &= 3\sin(b) - 4\sin^3(b) \\
+    &= R_0(3 - 4R_0^2) \\
+R_3 &= \sin(4b) \\
+    &= 2\sin(2b)\cos(2b) \\
+    &= 4\sin(b)\cos(b)(1-2\sin^2(b)) \\
+    &= 2R_1(1 - 2R_0^2)
+\end{align*}
+
+Simplifying hexagons area in function of $R_0$ and $R_1$ only:
+\begin{align*}
+X_0 &= 2R_0 + R_1 \\
+X_1 &= 2R_0(1 - 2R_0^2) + R_1 \\
+X_2 &= 4R_0(1 - 2R_0^2) + R_1(1 - 2R_0) \\
+X_3 &= -R_0 + 4R_1(1-2R_0^2)
+\end{align*}
+
+\begin{align*}
+X_0 - X_1 &= 4R_0^3 \\
+
+
+\end{align*}
+
+
+
+
+</div>
+
+ </body>
+</html>
+
+

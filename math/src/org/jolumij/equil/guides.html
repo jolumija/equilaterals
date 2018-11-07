@@ -1,0 +1,95 @@
+<html>
+ <head>
+  <script type="text/javascript" src="js/svg.js"></script>
+  <script type="text/javascript" src="js/geom.js"></script>
+  <style>
+td { vertical-align: top; }
+.number { font-family: "courier"; font-size: 12px; }
+  </style>
+ </head>
+ <body>  
+  <a href="index.html">Index</a>
+  <h2>Guides</h2>
+  <table>
+   <tr>
+    <td><div id="canvas"></div></td>
+    <td><div id="col-1"></div></td>
+    <td><div id="col-2"></div></td>
+    <td><div id="col-3"></div></td>
+    <td><div id="col-4"></div></td>
+   </tr>
+  </table>
+  <div id="canvas"></div>
+ </body>
+ <script>
+
+var g = null;
+
+function svgGuides(parent, S) {
+	if (g == null)
+		return;
+	var td = svgTopBottom(parent, S);
+	var g1 = td.top;
+	var g2 = td.bottom;
+	var x0=0, y0=0;
+	var _ = g.guides();
+	var first = [x0, y0];
+
+	var i;
+	for (i=0; i < _.x1.length; i++) {
+		var last = [x0 + S*_.x1[i], y0 + S*_.y1[i]];
+		svgLine(g1, first, last, "#f00");
+	}
+	svgCircle(g1, [x0, y0], 3, "#f00", "#f00");
+
+	for (i=0; i < _.x2.length; i++) {
+		var last = [ x0 + S*_.x2[i], y0 + S*_.y2[i] ];
+		svgLine(g2, first, last, "#00f");
+	}
+	svgCircle(g2, [x0, y0], 3, "#00f", "#00f");
+}
+
+var p = $("canvas");
+var symm = selectElem(p, {
+ "3":3, "5":5, "7":7, "9":9, "11":11, "13":13, "15":15
+}, 9);
+var size = selectElem(p, {
+	"10":10, "20":20, "30":30, "40":40, "50":50
+}, 50);
+var guides = elem("div", p);
+buttonElem(p, null, "copy SVG", function() {
+	window.prompt("Copy to clipboard: Ctrl+C, Enter", guides.innerHTML);
+});
+function updateGuides() { 
+	svgGuides(guides, parseInt(size.value));
+}
+
+function updateNumbers(xy,vx,vy,xys) {
+	xy.innerHTML = "";
+	for (var _ in g.x)
+		elem("div", xy, "number", "x[" + _ + "]=" + JSON.stringify(g.x[_]));
+	for (var _ in g.y)
+		elem("div", xy, "number", "y[" + _ + "]=" + JSON.stringify(g.y[_]));
+	vx.innerHTML = "";
+	for (var _ in g.vx)
+		elem("div", vx, "number", "vx[" + _ + "]=" + JSON.stringify(g.vx[_]));
+	vy.innerHTML = "";
+	for (var _ in g.vy)
+		elem("div", vy, "number", "vy[" + _ + "]=" + JSON.stringify(g.vy[_]));
+	xys.innerHTML = "";
+	var _ = g.guides();
+	_.x1.forEach(function(v,k) { elem("div", xys, "number", "x1[" + k + "]=" + v); });
+	_.y1.forEach(function(v,k) { elem("div", xys, "number", "y1[" + k + "]=" + v); });
+	_.x2.forEach(function(v,k) { elem("div", xys, "number", "x2[" + k + "]=" + v); });
+	_.y2.forEach(function(v,k) { elem("div", xys, "number", "y2[" + k + "]=" + v); });
+}
+
+change(symm, function(c) { 
+	g = new geometry(parseInt(symm.value));
+	updateNumbers($("col-1"), $("col-2"), $("col-3"), $("col-4"));
+	updateGuides(); 
+});
+change(size, function(c) { updateGuides(); });
+
+ </script>
+</html>

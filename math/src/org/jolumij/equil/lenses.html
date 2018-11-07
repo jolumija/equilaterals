@@ -1,0 +1,131 @@
+<html>
+ <head>
+  <script type="text/javascript" src="js/svg.js"></script>
+  <script type="text/javascript" src="js/geom.js"></script>
+  <style>
+svg { border:1px solid #abc; }
+.circle { stroke:#000; stroke-width:3; fill:#fff; }
+  </style>
+ </head>
+ <body>
+  <div id="test"></div>
+ </body>
+ <script>
+function polygon6plus4n(n, parent) {
+	var S = (6 + 4*n) / 2;
+	var g = new geometry(S);
+	var H = parseInt(S/2);
+	var p0 = []; 
+	for (var i=0; i < 2*S; i++) {
+		p0.push(H);
+	}
+	var x = g.polyline(null, 0, p0);
+
+	var p1 = [H,H];
+	var pa = [];
+	for (var i=0; i < H-1; i++) {
+		pa.push(g.polyline(x[1], H+1+i, p1));
+		p1.push(H);
+		p1.push(H);
+	}
+	var p2 = [H];
+	var pb = [];
+	for (var i=0; i < H-1; i++) {
+		pb.push(g.polyline(x[4 + 2*i], H-0.5, p2));
+		p2.push(H);
+		p2.push(H);
+	}
+	var p3 = [H+1];
+	var pc = [];
+	for (var i=0; i < H-1; i++) {
+		pc.push(g.polyline(x[5 + 2*i], H-1, p3));
+		p3.push(H-1);
+		p3.push(H+1);
+	}
+	// draw
+	var p = svgG(svgRoot(parent, 300, 300), [250,160], 35);
+	var s0 = { dot:undefined, stroke:"#000", fill:"transparent", opacity:0.0 };
+	s0.stroke = "#000"; 
+	draw_polyline(p, g, x, s0);
+	s0.stroke = "#f00"; 
+	pa.forEach(function(_) {
+		draw_polyline(p, g, _, s0);
+	});
+	s0.stroke = "#0a0"; 
+	pb.forEach(function(_) {
+		draw_polyline(p, g, _, s0);
+	});
+	s0.stroke = "#00f"; 
+	pc.forEach(function(_) {
+		draw_polyline(p, g, _, s0);
+	});
+}
+
+
+function star6plus4(n, parent) {
+	var S = (6 + 4*n) / 2;
+	var g = new geometry(S);
+	var H = parseInt(S/2);
+
+	var p0 = [];
+	for (var i=0; i < S; i++) {
+		p0.push(H+1);
+		p0.push(H-1);
+	}
+	var x = g.polyline(null, 0, p0);
+
+	var p1 = [H,H,H];
+	var pa = [];
+	for (var i=0; i < H-1; i++) {
+		pa.push(g.polyline(x[1], H+2+i, p1));
+		p1.push(H);
+		p1.push(H);
+	}
+	var p2 = [H,H];
+	var pb = [];
+	for (var i=0; i < n; i++) {
+		pb.push(g.polyline(x[5 + 2*i], H, p2));
+		p2.push(H);
+		p2.push(H);
+	}
+	// draw
+	var p = svgG(svgRoot(parent, 300, 300), [250,200], 35);
+	var s0 = { dot:undefined, stroke:"#000", fill:"transparent", opacity:0.0 };
+	s0.stroke = "#000"; draw_polyline(p, g, x, s0);
+	s0.stroke = "#f00"; 
+	pa.forEach(function(_) {
+		draw_polyline(p, g, _, s0);
+	});
+	s0.stroke = "#080"; 
+	pb.forEach(function(_) {
+		draw_polyline(p, g, _, s0);
+	});
+}
+
+
+
+
+var test = $("test");
+var t1 = elem("div", test);
+
+
+
+
+polygon6plus4n(4, t1);
+//star6plus4(4, t1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ </script>
+</html>

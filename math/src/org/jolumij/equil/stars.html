@@ -1,0 +1,98 @@
+<html>
+ <head>
+  <script type="text/javascript" src="js/svg.js"></script>
+  <script type="text/javascript" src="js/geom.js"></script>
+  <style>
+svg { border:1px solid #abc; }
+td { vertical-align: top; }
+.number { font-family: "courier"; font-size: 12px; }
+  </style>
+ </head>
+ <body>
+  <a href="index.html">Index</a>
+  <table>
+   <tr>
+    <td><div id="canvas"></div></td>
+    <td><div>Star</div><div id="star" class="number"></div></td>
+    <td><div>Leaf</div><div id="leaf" class="number"></div></td>
+   </tr>
+  </table>
+  
+ </body>
+ <script>
+function star(S, g, diff, p) {
+	p.innerHTML = "";
+	var H = parseInt(S/2);
+	var Hu = H + diff;
+	var Hl = H - diff;
+	var p0 = [];
+	for (var i=0; i < S; i++) {
+		p0.push(Hu);
+		p0.push(Hl);
+	}
+	var x = g.polyline(null, 0, p0);
+	
+	var p1 = [];
+	for (var i=0; i < 2*Hl; i++) { p1.push(H); }
+	p1.push(Hl);
+	for (var i=0; i < 2*Hl; i++) { p1.push(H); }
+	var pa = [];
+	var y = g.polyline(x[1], 2*H, p1);
+	/*
+	var p2 = [Hl, H+1, Hl+1, S-2,
+	          Hl+1, H+1//, Hl+1, S-2,
+	          //Hl+1, H+1, Hl+1
+	          ];
+	var pb = [];
+	pb.push(g.polyline(x[2], 2*H+2.5, p2));
+	*/
+	// draw
+	var s = { dot:undefined, stroke:"#000", fill:"transparent", opacity:0.0 };
+	s.stroke = "#000"; draw_polyline(p, g, x, s);
+	s.stroke = "#f00"; draw_polyline(p, g, y, s);
+	//s.stroke = "#080"; draw_polylines(p, g, pb, s);
+
+	$("star").innerHTML = "";
+	elem("div", $("star"), null, JSON.stringify(p0));
+	x.forEach(function(v,k) {
+		elem("div", $("star"), null, "xy[" + k + "]=" + JSON.stringify(v));
+	});
+	$("leaf").innerHTML = "";
+	elem("div", $("leaf"), null, JSON.stringify(p1));
+	y.forEach(function(v,k) {
+		elem("div", $("leaf"), null, "xy[" + k + "]=" + JSON.stringify(v));
+	});
+}
+
+var ns = {}; for (var i=0; i <= 6; i++) { ns[i.toString()] = i; }
+var ms = []; for (var i=0; i <= 6; i++) { ms[i.toString()] = i; }
+var t1 = elem("div", $("canvas"));
+elem("span", t1, null," n= ");
+var nE = selectElem(t1, ns);
+elem("span",t1,null," m= ");
+var mE = selectElem(t1, ms);
+var t2 = elem("div", t1);
+
+var g = null;
+var S = null;
+var p = svgG(svgRoot(t2, 300, 300), [250,200], 30);
+
+function update() {
+	var n = parseInt(nE.value);
+	var m = parseInt(mE.value);
+	if (m > n) {
+		m = mE.value = n;
+	}
+	star(S, g, m, p);
+}
+change(nE, function(c) { 
+	var n = parseInt(nE.value);
+	S = (6 + 4*n) / 2;
+	g = new geometry(S);
+	update(); 
+});
+change(mE, function(c) { 
+	update(); 
+});
+ </script>
+</html>
