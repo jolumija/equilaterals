@@ -1,0 +1,130 @@
+<html>
+ <head>
+  <script type="text/javascript" src="equilateral.js"></script>
+  <style>
+svg { border:1px solid #abc; }
+.one { stroke:#000; stroke-width:1; fill:#f008; }
+.two { stroke:#000; stroke-width:1; fill:#f808; }
+  </style>
+ </head>
+ <body>
+ <div><small>@ib11</small></div>
+ <div id="all"></div>
+ </body>
+ <script>
+
+const star = function(n, m, g, o) {
+	const a = []
+	for (let i=0; i < g.symm(); i++) { 
+		a.push(n + 1 + m)
+		a.push(n + 1 - m)
+	}
+	const p = g.polyline(o.xy, o.rot, a)
+	//console.log(`star n=${n} angles=${a} polyline=${JSON.stringify(p)}`)
+	return p
+}
+
+const crown1 = function(n, g, o) {
+	const a = []
+	a.push(n)
+	for (i=0; i < n; i++) {
+		a.push(n+2)
+		a.push(n)
+	}
+	a.push(1)
+	for (i=0; i < 2*n-1; i++)
+		a.push(n+2)
+	const p = g.polyline(o.xy, o.rot, a)
+	return p
+}
+
+const COLORS = [
+	"#f44", "#f80", "#dd0", "#0d0", "#0dd", "#09f", "#85f"
+]
+
+const sequence = function(n, g, p) 
+{
+	const s = {}
+
+	p.innerHTML = ""
+	const draw = function(polyline, stroke, fill) {
+		s.stroke = stroke
+		s.fill = fill
+		draw_polyline(p, g, polyline, s); // star
+	}
+
+	const S = g.symm()
+	const H = n+1
+
+	//console.log(`n=${n} S=${S} H=${H}`)
+
+	const A = star(n, 0, g, {
+		xy: null,
+		rot: 0
+	})
+	draw(A, "#888", "transparent") // star
+
+	const B = crown1(n, g, { 
+		xy: A[0], 
+		rot: S - 0.5 
+	})
+	draw(B, "#888", "transparent")
+
+
+	const r1 = function(f) {
+		return [
+			A[f+1], A[f+2], A[f+3], 
+			B[f+2], B[f+1], B[f+0],A[f+1]
+		]
+	}
+	const r2 = function(f) {
+		const b = B.length;
+		return [
+			B[  1+f], B[  2+f], B[  3+f],
+			B[b-3-f], B[b-2-f], B[b-1-f]
+		]
+	}
+	if (n >= 0) draw(r1(1), "#800", "#f44") // A B D G K P V
+	if (n >= 1) draw(r2(0), "#840", "#f80") // C E H L Q W
+	if (n >= 2) draw(r1(3), "#550", "#dd0") // F I M R X
+	if (n >= 3) draw(r2(2), "#050", "#0d0") // J N S Y
+	if (n >= 4) draw(r1(5), "#055", "#0dd") // O T Z
+	if (n >= 5) draw(r2(4), "#058", "#09f") // U @ 
+	if (n >= 6) draw(r1(7), "#428", "#85f") // #
+}
+
+const symms = [ 
+	{ n:0, s:30, t:[300,  60], h: 90, ids: [ "A" ] },
+	{ n:1, s:30, t:[300,  80], h:130, ids: [ "B", "C" ] },
+	{ n:2, s:30, t:[300, 100], h:170, ids: [ "D", "E", "F" ] }, 
+	{ n:3, s:30, t:[300, 120], h:210, ids: [ "G", "H", "I", "J" ] },
+	{ n:4, s:30, t:[300, 140], h:250, ids: [ "K", "L", "M", "N", "O" ] },
+	{ n:5, s:30, t:[300, 160], h:290, ids: [ "P", "Q", "R", "S", "T", "U" ] },
+	{ n:6, s:30, t:[300, 180], h:310, ids: [ "V", "W", "X", "Y", "Z", "@", "#" ] }
+]
+
+const table = elem("table", $("all"))
+
+symms.forEach(s => {
+
+	const g = new geom(s.n)
+
+	const tr = elem("tr", table)
+	const td0 = elem("td", tr)
+	elem("div", td0, "", "n = " + s.n)
+	elem("div", td0, "", "symm = " + g.symm())
+
+
+	const td1 = elem("td", tr)
+	const svg = svgRoot(td1, 330, s.h)
+	sequence(s.n, g, svgG(svg, s.t, s.s))
+
+	const td2 = elem("td", tr)
+	s.ids.forEach((i,j) => {
+		elem("div", td2, "", i, { style: `background-color:${COLORS[j]};` })
+	})
+})
+
+
+ </script>
+</html>
