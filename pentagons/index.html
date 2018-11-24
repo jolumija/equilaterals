@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Pentagons</title>
+	<style>
+svg { border:1px solid gray; }	
+polyline { stroke:#f00; fill:#f008; stroke-width:0.05; stroke-linecap: round;}
+input[type=number]{ width: 100px; }
+	</style>
+	<script src="pentagon.js"></script>
+</head>
+<body>
+<table>
+<tr><td>angle 1</td><td><input type="number" value="1" min="1" max="100" id="a1"></td></tr>
+<tr><td>angle 2</td><td><input type="number" value="1" min="1" max="100" id="a2"></td></tr>
+<tr><td>angle 3</td><td><input type="number" value="1" min="1" max="100" id="a3"></td></tr>
+<tr><td>angle 4</td><td><span id="a4">?</span></td></tr>
+<tr><td>angle 5</td><td><span id="a5">?</span></td></tr>
+<tr>
+ <td>Angle factor</td>
+ <td><input type="number" value="108" min="0" max="360.0" id="a" step=0.1 size="15"></td>
+ <td><input type="text" id="aa"></td>
+</tr>
+<tr>
+ <td>Last edge</td>
+ <td id="last-edge">?</td>
+</tr>
+</table>
+ <svg viewBox="0 0 300 300" width="300" height="300">
+ 	<g transform="translate(100,100) scale(60,60)" id="svg">
+ 	</g>
+ </svg>
+</body>
+<script type="text/javascript">
+const $ = (i) => { return document.getElementById(i) }
+
+const p = new Pentagon()
+
+
+function update() {
+	const a1 = parseInt($("a1").value)
+	const a2 = parseInt($("a2").value)
+	const a3 = parseInt($("a3").value)
+	p.set(a1,a2,a3)
+	const a = parseFloat($("a").value)
+	p.move(Math.PI*(a/180.0))
+	const points = p.points()
+	$("svg").innerHTML = `<polyline points="${p.points()}"></polyline>`
+	$("last-edge").innerHTML = p.lastEdge()
+	const a4 = p.a4()
+	$("a4").innerHTML = a4
+	const a5 = (540/a - a1 - a2 -a3 - a4)
+	$("a5").innerHTML = a5
+}
+
+update()
+const controls = [ "a","a1","a2","a3"]
+controls.forEach(c => { $(c).onchange = update })
+$("aa").addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
+        console.log(this.value)
+        const f = 360*parseFloat(parseFloat(eval(this.value)))
+        console.log(f)
+        $("a").value = f
+    }
+})
+
+
+
+</script>
+</html>

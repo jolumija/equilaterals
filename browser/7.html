@@ -1,0 +1,75 @@
+<html>
+ <head>
+  <script type="text/javascript" src="equilateral.js"></script>
+  <style>
+svg { border:1px solid #abc; }
+  </style>
+ </head>
+ <body>
+ <div><small>@ib14</small></div>
+ <div id="table">
+ </div>
+
+ <script type="text/javascript">
+
+
+function draw_polyline(parent, g, polyline, s) {
+	var p = g.points(polyline)
+	svgPolyline(parent, p, s.stroke, s.fill, s.opacity, 0.05)
+}
+
+const hexagons = function(p)
+{
+	const g = new geom(2)
+	p.innerHTML = ""
+	const draw = function(pl, stroke) {
+		const points = g.points(pl)
+		svgPolyline2(p, points, {
+			"stroke": stroke || "#000",
+			"fill":"transparent",
+			"stroke-width":0.1,
+			"stroke-linejoin": "round"
+		})
+	}
+	const o = [
+		[0,0,0,0],
+		[0,0,0,0]
+	]
+	const r = 0.5
+	const A = g.polyline(o, r+0.0, [3,3,1,3] )
+	const B = g.polyline(o, r+1.0, [2,4])
+	const C = g.polyline(o, r+3.0, [2,3,2])
+	const D = g.polyline(o, r+4.0, [5,1,2,4])
+
+	const E = g.polyline(A[5], r+5.5, [2])
+	const F = g.polyline(A[3], r+5.5, [1])
+	const G = g.polyline(B[3], r+0.5, [2,2])
+	const H = g.polyline(B[1], r+0.5, [3])
+	const I = g.polyline(C[4], r+0.0, [4])
+
+	draw(A, "#f00")
+	draw(B, "#f80")
+	draw(C, "#0a0")
+	draw(D, "#0aa")
+	draw(E, "#0a0")
+	draw(F, "#f80")
+	draw(G, "#0a0")
+	draw(H, "#f00")
+	draw(I, "#f80")
+}
+
+const symms = [
+	{ f: hexagons, w:300, h:300, s:25 }
+]
+
+const table = elem("table", $("table"))
+
+symms.forEach(s => {
+	const tr = elem("tr", table)
+	const td1 = elem("td", tr)
+	const svg1 = svgRoot(td1, s.w, s.h)
+	s.f(svgG(svg1, [s.w/2,s.h/2], s.s))
+})
+
+ </script>
+</hmtl>

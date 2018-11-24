@@ -117,6 +117,20 @@ function svgPolyline(parent, points, stroke, fill, opacity, strokeWidth) {
 	});
 }
 
+function svgPolyline2(parent, points, style) {
+	const p = points.map(_ => {
+		return `${_[0]},${_[1]}`
+	})
+	const S = []
+	Object.keys(style).forEach(s => {
+		S.push(`${s}:${style[s]};`)
+	})
+	return svgElem("polyline", parent, null, null, {
+		points: p.join(" "),
+		style: S.join(" ")
+	})
+}
+
 // returns a window W=3S, H=6S
 // with two groups at top y bottom
 function svgTopBottom(parent, S) {
