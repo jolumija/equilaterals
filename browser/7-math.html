@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>7 symm math</title>
+<style type="text/css">
+th,td { padding: 0px 4px; }	
+caption { margin-top:20px; border-bottom: 1px solid #888; }
+</style>
+</head>
+<body>
+<table>
+<caption>Exact</caption>
+<tr><th>a7</th><td>2*Math.PI/7</td><td id="a7"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><th>cos_a</th><td>Math.cos(1*a7)</td><td id="a"></td></tr>
+<tr><th>cos_b</th><td>Math.cos(2*a7)</td><td id="b"></td></tr>
+<tr><th>cos_c</th><td>Math.cos(4*a7)</td><td id="c"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><th>A</th><td>Math.sqrt(2 - 2*cos_a)</td><td id="A"></td></tr>
+<tr><th>B</th><td>Math.sqrt(2 - 2*cos_b)</td><td id="B"></td></tr>
+<tr><th>C</th><td>Math.sqrt(2 - 2*cos_c)</td><td id="C"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><th>S1</th><td>A / A</td><td>1.0</td>      <td>Heptagonal triangle side 1</td></tr>
+<tr><th>S2</th><td>B / A</td><td id="B/A"></td><td>Heptagonal triangle side 2</td></tr>
+<tr><th>S3</th><td>C / A</td><td id="C/A"></td><td>Heptagonal triangle side 3</td></tr>
+</table>
+
+<table>
+<caption>9, 5, 4 approximators</caption>
+<tr><td></td><td>9*A</td><td id="9A"></td></tr>
+<tr><td></td><td>5*B</td><td id="5B"></td></tr>
+<tr><td></td><td>4*C</td><td id="4C"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td>r1</td><td>(5*B) / (9*A)</td><td id="5B/9A"></td></tr>
+<tr><td>r2</td><td>(9*A) / (4*C)</td><td id="9A/4C"></td></tr>
+<tr><td>r3</td><td>(5*B) / (4*C)</td><td id="5B/4C"></td></tr>
+<tr><td></td><td>r1 + r2 - r3</td><td id="5B/9A+9A/4C-5B/4C"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><th>D</th><td>5*4</td><td>20</td></tr>
+<tr><th>E</th><td>9*4</td><td>36</td></tr>
+<tr><th>F</th><td>9*5</td><td>45</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><th>cos_d</th><td id="cos_d_f"></td><td id="cos_d"></td><td>2921 / 3240</tr>
+<tr><th>cos_e</th><td id="cos_e_f"></td><td id="cos_e"></td><td>1129 / 1800</td></tr>
+<tr><th>cos_f</th><td id="cos_f_f"></td><td id="cos_f"></td><td>-329 / 1440</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><th>d1</th><td> cos_d / cos_c </td><td id="cos_d/cos_c"></td></tr>
+<tr><th>d2</th><td> cos_e / cos_a </td><td id="cos_e/cos_a"></td></tr>
+<tr><th>d3</th><td> cos_f / cos_b </td><td id="cos_f/cos_b"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><th>arccos_c</th><td>360 / 14</td><td id="arccos_c"></td><td>degrees</td></tr>
+<tr><th>arccos_d</th><td></td><td id="arccos_d"></td><td>degrees</td></tr>
+<tr></tr>
+
+
+<tr><td>&nbsp;</td></tr>
+<tr><td></td><td>S1 / D</td><td id="s1/20"></td>
+<tr><td></td><td>S2 / E</td><td id="s2/36"></td>
+<tr><td></td><td>S3 / F</td><td id="s3/45"></td>
+
+</table>
+
+<table>
+<caption>Aproximations</caption>
+<tr><td>5 * b2 / a2 = </td><td id="5b2/a2"></td></tr>
+<tr><td>4 * c2 / a2 = </td><td id="4c2/a2"></td></tr>
+</table>
+
+<pre id="pre">
+
+</pre>
+
+
+<object type="image/svg+xml" data="7-aprox.svg">
+	
+</object>
+
+</body>
+<script type="text/javascript">
+const $ = (id)=> { return document.getElementById(id) }
+
+const a7 = 2*Math.PI / 7
+
+const cosines = [1,2,4].map(a => { return Math.cos(a*a7) })
+const sqrts  = cosines.map(a => { return Math.sqrt(2 - 2*a) } )
+
+const _9A = 9*sqrts[0]
+const _5B = 5*sqrts[1]
+const _4C = 4*sqrts[2]
+
+$("a7").innerHTML = a7
+
+$("a").innerHTML = `${cosines[0]}`
+$("b").innerHTML = `${cosines[1]}`
+$("c").innerHTML = `${cosines[2]}`
+
+$("A").innerHTML = sqrts[0]
+$("B").innerHTML = sqrts[1]
+$("C").innerHTML = sqrts[2]
+
+$("9A").innerHTML = _9A
+$("5B").innerHTML = _5B
+$("4C").innerHTML = _4C
+
+$("5B/9A").innerHTML = _5B / _9A
+$("9A/4C").innerHTML = _9A / _4C
+$("5B/4C").innerHTML = _5B / _4C
+$("5B/9A+9A/4C-5B/4C").innerHTML = _5B / _9A + _9A / _4C - _5B / _4C
+
+const s2 = sqrts[1] / sqrts[0]
+const s3 = sqrts[2] / sqrts[0]
+
+$("B/A").innerHTML = s2
+$("C/A").innerHTML = s3
+
+$("s1/20").innerHTML = 1/20.0
+$("s2/36").innerHTML = s2/36.0
+$("s3/45").innerHTML = s3/45.0
+
+
+$("5b2/a2").innerHTML = 5 * sqrts[1] / sqrts[0]
+$("4c2/a2").innerHTML = 4 * sqrts[2] / sqrts[0]
+
+
+function cosT(a,b,c) { return `(${b}^2 + ${c}^2 - ${a}^2 ) / (2*${b}*${c})`}
+function cos(a,b,c) { return (b*b + c*c - a*a) / (2*b*c) }
+
+
+const cos_d_f = cosT(20,36,45)
+const cos_e_f = cosT(36,45,20)
+const cos_f_f = cosT(45,20,36)
+
+
+const cos_d = cos(20,36,45)
+const cos_e = cos(36,45,20)
+const cos_f = cos(45,20,36)
+
+$("cos_d").innerHTML = cos_d
+$("cos_e").innerHTML = cos_e
+$("cos_f").innerHTML = cos_f
+
+$("cos_d_f").innerHTML = cos_d_f
+$("cos_e_f").innerHTML = cos_e_f
+$("cos_f_f").innerHTML = cos_f_f
+
+$("cos_d/cos_c").innerHTML = cos_d / -cosines[2]
+$("cos_e/cos_a").innerHTML = cos_e / cosines[0]
+$("cos_f/cos_b").innerHTML = cos_f / cosines[1]
+
+$("arccos_c").innerHTML = 180*Math.acos(-cosines[2])/Math.PI
+$("arccos_d").innerHTML = 180*Math.acos(cos_d)/Math.PI
+
+$("pre").innerHTML = 
+`Triangle 20,36,45:
+cos a_ = ${cos_d_f} = ${cos_d}
+
+cos b_ = ${cos_e_f} = ${cos_e}
+
+cos c_ = ${cos_f_f} = ${cos_f}
+
+cos_d / -cos_c = ${ cos_d / -cosines[2] }
+
+cos b / cos_a  = ${ cos_e / cosines[0] }
+
+cos c / cos_b = ${ cos_f / cosines[1] }
+
+`
+
+
+</script>
+
+
+</html>
