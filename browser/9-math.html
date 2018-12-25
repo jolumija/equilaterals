@@ -4,16 +4,21 @@
 <title>9 symmetries</title>
 <script type="text/javascript" src="equilateral.js"></script>
 <style type="text/css">
+caption { border-bottom: 1px solid gray; margin:10px 5px 0 5px; }
 th, td { padding:0px 10px; }	
 td { font-family: courier; }
 .r { color:red; font-weight: bold; }
 .b { color:blue; font-weight: bold; }
+.m { color:magenta; font-weight: bold; }
 .num { text-align: right; }
+.inline { display:inline-block; vertical-align: top; }
 </style>
 </head>
 <body>
-<div id="links"></div>
+<div>@ic24</div>
+<pre id="pre"></pre>
 <object type="image/svg+xml" data="9a.svg"></object> 
+<div id="links"></div>
 <div id="coords"></div>
 <div id="cos">
  </div>
@@ -24,162 +29,156 @@ td { font-family: courier; }
 const Geom = function(n) 
 {
 	const symm = 3 + 2*n
-	const angles = []
-	for (let a=1; a < symm; a++)
-		angles.push(a)
-	const reds = [] // segments
-	const blues = [] // segments
-	for (let s=1; s <= symm; s++) {
-		reds.push(s)
-		blues.push(symm + s)
+	// symm=9 (x=>angles, y=>segments)
+	// angle =>   1  2  3  4  5  6  7  8   red blue
+	//                                     === ====
+	// seg 0 => [ 8, 7, 6, 5, 4, 3, 2, 1 ]  1   10
+	// seg 1 => [ 0, 8, 7, 6, 5, 4, 3, 2 ]  2   11
+	// seg 2 => [ 1, 0, 8, 7, 6, 5, 4, 3 ]  3   12
+	// seg 3 => [ 2, 1, 0, 8, 7, 6, 5, 4 ]  4   13
+	// seg 4 => [ 3, 2, 1, 0, 8, 7, 6, 5 ]  5   14
+	// seg 5 => [ 4, 3, 2, 1, 0, 8, 7, 6 ]  6   15
+	// seg 6 => [ 5, 4, 3, 2, 1, 0, 8, 7 ]  7   16
+	// seg 7 => [ 6, 5, 4, 3, 2, 1, 0, 8 ]  8   17
+	// seg 8 => [ 7, 6, 5, 4, 3, 2, 1, 0 ]  9   18 
+	const rows = []
+	for (let r=0; r < symm; r++) { // segments
+		const cols = []
+		const first = symm + r
+		for (let c=1; c < symm; c++) // angles
+			cols.push((first - c)%symm)
+		rows.push(cols)
 	}
-	const reds_angles = []
-	for (let r = 0; r < reds.length; r++) {
-		const bs = []
-		if (r==0) {
-			for (let b=symm-1; b > 0; b--)
-				bs.push(blues[b])
+	const segments = []
+	rows.forEach(row => {
+		segments.push(row.map(r => { return r+symm }))
+	})
+	rows.forEach(row => {
+		segments.push(row)
+	})
+
+	const m = Math.PI / symm
+	const angles = {
+		all: [],
+		m: m,
+	}
+	for (let a=1; a < symm; a++) angles.all.push(a); // [1,2,...8]
+	const as = []; for (let a=0; a <= (symm-1)/2; ++a) as.push(a); // [0,1,2,3,4]
+	angles.cos = as.map(a => { return Math.cos(a*m) })
+	angles.sin = as.map(a => { return Math.sin(a*m) })
+
+	this.toString = function() { return `Geom n=${n} symm=${symm}` }
+	this.symmetry = function() { return symm }
+	this.segments = function() { return segments }
+	this.rows     = function() { return rows }
+	this.angles   = function() { return angles }
+
+	this.pos = function() {
+		const pos = [] // 1,15,2,16,3,17,4...
+		for (let i=0; i < 2*symm; i++) {
+			const p = { }
+			if (i%2==0) {
+				p.seg = 1 + (i)/2
+			} else {
+				const diff = ((i+9)/2) % 9
+				p.seg = 1 + 9 + diff
+			}
+			p.x = (i < symm) // ok
+			p.y = (i < symm/2) || (i > 3*symm/2) // ok
+			pos.push(p)
 		}
-		reds_angles.push(bs)
+		return pos
 	}
-
-	this.symmetry = function() {
-		return symm
-	}
-	this.angles = function() {
-		return angles
-	}
-	this.toString = function() {
-		return `Geom n=${n} symm=${symm} 
-	angles=${JSON.stringify(angles)}
-	reds=${JSON.stringify(reds)}
-	blues=${JSON.stringify(blues)}`
-	}
-	this.reds_angles = function() {
-		return reds_angles
-	}
-	
-}
-
-function rowAngles(table) {
-	const tr = elem("tr", table)
-	elem("th", tr, {}, "")
-	for (let i=1; i<=8; i++)
-		elem("th", tr, { }, i)
-}
-function rowRedBlues(table, reds, blues) {
-	const tr = elem("tr", table)
-	reds.forEach(r => {
-		elem("td", tr, "r num", r)
-	})
-	blues.forEach(b => {
-		elem("td", tr, "b num", b)
-	})
-}
-function rowBlueReds(table, blues, reds) {
-	const tr = elem("tr", table)
-	blues.forEach(b => {
-		elem("td", tr, "b num", b)
-	})
-	reds.forEach(r => {
-		elem("td", tr, "r num", r)
-	})
 }
 
 const g = new Geom(3)
+const angles = g.angles()
+//console.log(JSON.stringify(angles, null, 2))
 
-console.log(g.toString());
-console.log("reds_angles", JSON.stringify(g.reds_angles()))
+//console.log(g.toString());
+$("pre").innerHTML = g.toString()
 
-const t1 = elem("table", $("links"))
-rowAngles(t1)
-rowRedBlues(t1, [1],[18,17,16,15,14,13,12,11])
-rowRedBlues(t1, [2],[10,18,17,16,15,14,13,12])
-rowRedBlues(t1, [3],[11,10,18,17,16,15,14,13])
-rowRedBlues(t1, [4],[12,11,10,18,17,16,15,14])
-rowRedBlues(t1, [5],[13,12,11,10,18,17,16,15])
-rowRedBlues(t1, [6],[14,13,12,11,10,18,17,16])
-rowRedBlues(t1, [7],[15,14,13,12,11,10,18,17])
-rowRedBlues(t1, [8],[16,15,14,13,12,11,10,18])
-rowRedBlues(t1, [9],[17,16,15,14,13,12,11,10])
-rowBlueReds(t1, [10],[9,8,7,6,5,4,3,2])
-rowBlueReds(t1, [11],[1,9,8,7,6,5,4,3])
-rowBlueReds(t1, [12],[2,1,9,8,7,6,5,4])
-rowBlueReds(t1, [13],[3,2,1,9,8,7,6,5])
-rowBlueReds(t1, [14],[4,3,2,1,9,8,7,6])
-rowBlueReds(t1, [15],[5,4,3,2,1,9,8,7])
-rowBlueReds(t1, [16],[6,5,4,3,2,1,9,8])
-rowBlueReds(t1, [17],[7,6,5,4,3,2,1,9])
-rowBlueReds(t1, [18],[8,7,6,5,4,3,2,1])
+const links = $("links")
+const table_1 = elem("div", links, "inline")
+const table_2 = elem("div", links, "inline")
+const table_3 = elem("div", links, "inline")
 
-
-const angles = [1,2,3,4]
-const m = Math.PI / 9
-const ANGLES = {
-	m: m,
-	cos: angles.map(a => { return Math.cos(a*m) }),
-	sin: angles.map(a => { return Math.sin(a*m) })
+{
+	const t0 = elem("table", table_1)
+	elem("caption", t0, "", "x:angles, y:segments, x,y:next segment")
+	const tr = elem("tr", t0)
+	elem("td", tr).innerHTML = "&nbsp;"
+	angles.all.forEach(k => {
+		elem("td", tr).innerHTML = k
+	})
+	let row = 0
+	g.segments().forEach(s => {
+		const tr = elem("tr", t0)
+		const first = row < 9;
+		const clazz = first ? "r" : "b"
+		const name = row+1
+		elem("td", t0, clazz + " num", name)
+		s.forEach(col => {
+			const clazz = first ? "b" : "r"
+			const name = col + 1
+			elem("td", t0, clazz + " num", name)
+		})
+		row++
+	})
 }
 
 
 {
-	const t2 = elem("table", $("coords"))
-	function row(a, b, c) {
-		const tr = elem("tr", t2)
-		elem("td", tr).innerHTML = a || "&nbsp;"
+	function row(t, a, b, c) {
+		const tr = elem("tr", t)
+		elem("td", tr, "m").innerHTML = a || "&nbsp;"
 		elem("td", tr).innerHTML = b || "&nbsp;"
-		elem("td", tr).innerHTML = c || "&nbsp;"
+		elem("td", tr).innerHTML = c
 	}
-	row("m", "pi / 9", ANGLES.m)
-	const cos = [ "a", "b", "c", "d" ]
+	const t0 = elem("table", table_2)
+	elem("caption", t0, "", "Angle")
+	row(t0, "m", "pi / " + g.symmetry(), angles.m)
+
+	const t1 = elem("table", table_2)
+	elem("caption", t1, "", "x coordinates")
+	const cos = [ "1", "a", "b", "c", "d" ]
 	for (let i=0; i < cos.length; i++) {
-		row(cos[i], `cos(${i+1}*m)`, ANGLES.cos[i])
+		row(t1, cos[i], `cos(${i}*m)`, angles.cos[i])
 	}
-	const sin = [ "e", "f", "g", "h" ]
+	const t2 = elem("table", table_2)
+	elem("caption", t2, "", "y coordinates")
+	const sin = [ "0", "e", "f", "g", "h" ]
 	for (let i=0; i < sin.length; i++) {
-		row(sin[i], `sin(${i+1}*m)`, ANGLES.sin[i])
+		row(t2, sin[i], `sin(${i}*m)`, angles.sin[i])
 	}
 }
 
 {
-	const t3 = elem("table", $("coords"))
-	function row(r1, r2, b1, b2) {
+	const t3 = elem("table", table_2)
+	elem("caption", t3, "", "(x,y) segment=(quadrant)")
+	function row(b, r1, r2, b1, b2) {
 		const tr = elem("tr", t3)
+		elem("td", tr, "m", b)
 		elem("td", tr, "r").innerHTML = r1 || "&nbsp;"
 		elem("td", tr, "r").innerHTML = r2 || "&nbsp;"
 		elem("td", tr, "b").innerHTML = b1 || "&nbsp;"
 		elem("td", tr, "b").innerHTML = b2 || "&nbsp;"
 	}
-	row()
-	row("1=(+1,0)",  null,        "10=(-1,0)")
-	row("2=(+b,-f)", "9=(+b,+f)", "11=(-b,-f)", "18=(-b,+f)")
-	row("3=(+d,-h)", "8=(+d,+h)", "12=(-d,-h)", "17=(-d,+h)")
-	row("4=(-c,+g)", "7=(-c,-g)", "13=(+c,+g)", "16=(+c,-g)")
-	row("5=(-a,+e)", "6=(-a,-e)", "14=(+a,+e)", "15=(+a,-e)")
+	row("(1,0)", "1=(+,0)", null,      "10=(-,0)")
+	row("(b,f)", "2=(+,+)", "9=(-,+)", "11=(-,-)", "18=(+,-)")
+	row("(d,h)", "3=(+,+)", "8=(-,+)", "12=(-,-)", "17=(+,-)")
+	row("(c,g)", "4=(+,-)", "7=(-,-)", "13=(-,+)", "16=(+,+)")
+	row("(a,e)", "5=(+,-)", "6=(-,-)", "14=(-,+)", "15=(+,+)")
 }
 
 {
-	const t4 = elem("table", $("coords"))
-	function row(clazz, c1, c2) {
-		const tr = elem("tr", t4)
-		elem("td", tr, clazz).innerHTML = c1 || "&nbsp;"
-		elem("td", tr, clazz).innerHTML = c2 || "&nbsp;"
-	}	
-
-	row()
-	row("r","+1","x=[+1,0,0,0,0]")
-	row("b","+a","x=[0,+1,0,0,0]")
-	row("r","+b","x=[0,0,+1,0,0]")
-	row("b","+c","x=[0,0,0,+1,0]")
-	row("r","+d","x=[0,0,0,0,+1]")
-	row()
-	row("b","-1","x=[-1,0,0,0,0]")
-	row("r","-a","x=[0,-1,0,0,0]")
-	row("b","-b","x=[0,0,-1,0,0]")
-	row("r","-c","x=[0,0,0,-1,0]")
-	row("b","-d","x=[0,0,0,0,-1]")
-	row()
+	const t4 = elem("div", table_3)
+	g.pos().forEach(r => {
+		elem("div", t4, "", JSON.stringify(r))
+	})
 }
+
+
 
 /*
 
@@ -280,9 +279,58 @@ row("D", "sqrt(A^2 + C^2 - 2ACcos(5a))",  D1, "sqrt(1 + C^2 + 2Ccos(4a))")
 row("D", "sqrt(B^2 + B^2 - 2B^2cos(5a))", D2, "B*sqrt(2 + 2cos(4a))")
 row("D", "1 + B", 1 + B, "decimal expansion hypotesis")
 row("D", "sqrt((2-2cos(5a)*(2-2cos(7a)))", sqrts[4]*sqrts[6])
-
-
 */
+
+
+
+/*
+function rowAngles(table) {
+	const tr = elem("tr", table)
+	elem("th", tr, {}, "")
+	for (let i=1; i<=8; i++)
+		elem("th", tr, { }, i)
+}
+function rowRedBlues(table, reds, blues) {
+	const tr = elem("tr", table)
+	reds.forEach(r => {
+		elem("td", tr, "r num", r)
+	})
+	blues.forEach(b => {
+		elem("td", tr, "b num", b)
+	})
+}
+function rowBlueReds(table, blues, reds) {
+	const tr = elem("tr", table)
+	blues.forEach(b => {
+		elem("td", tr, "b num", b)
+	})
+	reds.forEach(r => {
+		elem("td", tr, "r num", r)
+	})
+}
+const t1 = elem("table", $("links"))
+rowAngles(t1)
+rowRedBlues(t1, [1],[18,17,16,15,14,13,12,11])
+rowRedBlues(t1, [2],[10,18,17,16,15,14,13,12])
+rowRedBlues(t1, [3],[11,10,18,17,16,15,14,13])
+rowRedBlues(t1, [4],[12,11,10,18,17,16,15,14])
+rowRedBlues(t1, [5],[13,12,11,10,18,17,16,15])
+rowRedBlues(t1, [6],[14,13,12,11,10,18,17,16])
+rowRedBlues(t1, [7],[15,14,13,12,11,10,18,17])
+rowRedBlues(t1, [8],[16,15,14,13,12,11,10,18])
+rowRedBlues(t1, [9],[17,16,15,14,13,12,11,10])
+rowBlueReds(t1, [10],[9,8,7,6,5,4,3,2])
+rowBlueReds(t1, [11],[1,9,8,7,6,5,4,3])
+rowBlueReds(t1, [12],[2,1,9,8,7,6,5,4])
+rowBlueReds(t1, [13],[3,2,1,9,8,7,6,5])
+rowBlueReds(t1, [14],[4,3,2,1,9,8,7,6])
+rowBlueReds(t1, [15],[5,4,3,2,1,9,8,7])
+rowBlueReds(t1, [16],[6,5,4,3,2,1,9,8])
+rowBlueReds(t1, [17],[7,6,5,4,3,2,1,9])
+rowBlueReds(t1, [18],[8,7,6,5,4,3,2,1])
+*/
+
+
 
 </script>
 
