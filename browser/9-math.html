@@ -7,6 +7,7 @@
 caption { border-bottom: 1px solid gray; margin:10px 5px 0 5px; }
 th, td { padding:0px 10px; }	
 td { font-family: courier; }
+.a { color:#080; font-weight:bold; }
 .r { color:red; font-weight: bold; }
 .b { color:blue; font-weight: bold; }
 .m { color:magenta; font-weight: bold; }
@@ -15,12 +16,11 @@ td { font-family: courier; }
 </style>
 </head>
 <body>
-<div>@ic24</div>
+<div>@ic25</div>
 <pre id="pre"></pre>
-<object type="image/svg+xml" data="9a.svg"></object> 
 <div id="links"></div>
-<div id="coords"></div>
-<div id="cos">
+<object type="image/svg+xml" data="9a.svg"></object> 
+<div id="post"></div>
  </div>
 </body>
 
@@ -73,16 +73,27 @@ const Geom = function(n)
 	this.rows     = function() { return rows }
 	this.angles   = function() { return angles }
 
+
 	this.pos = function() {
+		const first = "1,0"
+		const rest = ["a,e","b,f","c,g","d,h"] // TODO 9
+		const xy = []
+		function push(r) { xy.push(r) }
+		push(first)
+		rest.forEach(push)
+		rest.reverse().forEach(push)
 		const pos = [] // 1,15,2,16,3,17,4...
 		for (let i=0; i < 2*symm; i++) {
 			const p = { }
 			if (i%2==0) {
 				p.seg = 1 + (i)/2
+				p.clazz = "r"
 			} else {
 				const diff = ((i+9)/2) % 9
 				p.seg = 1 + 9 + diff
+				p.clazz = "b"
 			}
+			p.xy = xy[i%symm] // ok
 			p.x = (i < symm) // ok
 			p.y = (i < symm/2) || (i > 3*symm/2) // ok
 			pos.push(p)
@@ -109,7 +120,7 @@ const table_3 = elem("div", links, "inline")
 	const tr = elem("tr", t0)
 	elem("td", tr).innerHTML = "&nbsp;"
 	angles.all.forEach(k => {
-		elem("td", tr).innerHTML = k
+		elem("td", tr, "a num").innerHTML = k
 	})
 	let row = 0
 	g.segments().forEach(s => {
@@ -127,6 +138,25 @@ const table_3 = elem("div", links, "inline")
 	})
 }
 
+{
+	const t4 = elem("table", table_2)
+	elem("caption", t4, "", "segments")
+	function row(a, b, c, d) {
+		const tr = elem("tr", t4)
+		elem("td", tr, a[0], a[1])
+		elem("td", tr, "m", b)
+		elem("td", tr, "", c)
+		elem("td", tr, "", d)
+	}
+	row(["","segment"], "x,y", "x","y")
+	g.pos().forEach(r => {
+		row([r.clazz + " num",r.seg], 
+			r.xy,
+			r.x ? "+" : "-", 
+			r.y ? "+" : "-"
+		)
+	})
+}
 
 {
 	function row(t, a, b, c) {
@@ -135,17 +165,17 @@ const table_3 = elem("div", links, "inline")
 		elem("td", tr).innerHTML = b || "&nbsp;"
 		elem("td", tr).innerHTML = c
 	}
-	const t0 = elem("table", table_2)
+	const t0 = elem("table", table_3)
 	elem("caption", t0, "", "Angle")
 	row(t0, "m", "pi / " + g.symmetry(), angles.m)
 
-	const t1 = elem("table", table_2)
+	const t1 = elem("table", table_3)
 	elem("caption", t1, "", "x coordinates")
 	const cos = [ "1", "a", "b", "c", "d" ]
 	for (let i=0; i < cos.length; i++) {
 		row(t1, cos[i], `cos(${i}*m)`, angles.cos[i])
 	}
-	const t2 = elem("table", table_2)
+	const t2 = elem("table", table_3)
 	elem("caption", t2, "", "y coordinates")
 	const sin = [ "0", "e", "f", "g", "h" ]
 	for (let i=0; i < sin.length; i++) {
@@ -154,28 +184,60 @@ const table_3 = elem("div", links, "inline")
 }
 
 {
-	const t3 = elem("table", table_2)
-	elem("caption", t3, "", "(x,y) segment=(quadrant)")
-	function row(b, r1, r2, b1, b2) {
-		const tr = elem("tr", t3)
-		elem("td", tr, "m", b)
-		elem("td", tr, "r").innerHTML = r1 || "&nbsp;"
-		elem("td", tr, "r").innerHTML = r2 || "&nbsp;"
-		elem("td", tr, "b").innerHTML = b1 || "&nbsp;"
-		elem("td", tr, "b").innerHTML = b2 || "&nbsp;"
-	}
-	row("(1,0)", "1=(+,0)", null,      "10=(-,0)")
-	row("(b,f)", "2=(+,+)", "9=(-,+)", "11=(-,-)", "18=(+,-)")
-	row("(d,h)", "3=(+,+)", "8=(-,+)", "12=(-,-)", "17=(+,-)")
-	row("(c,g)", "4=(+,-)", "7=(-,-)", "13=(-,+)", "16=(+,+)")
-	row("(a,e)", "5=(+,-)", "6=(-,-)", "14=(-,+)", "15=(+,+)")
-}
+	const t0 = elem("table", $("post"))
+	const tr = elem("tr", t0)
+	elem("td", tr, "", "segment")
+	elem("td", tr, "m num", "1")
+	elem("td", tr, "m", "a")
+	elem("td", tr, "m", "b")
+	elem("td", tr, "m", "c")
+	elem("td", tr, "m", "d")
+	elem("td", tr)
+	elem("td", tr, "m", "0")
+	elem("td", tr, "m", "e")
+	elem("td", tr, "m", "f")
+	elem("td", tr, "m", "g")
+	elem("td", tr, "m", "h")
+	elem("td", tr, "", "vertex")
+	elem("td", tr, "", "angle")
 
-{
-	const t4 = elem("div", table_3)
-	g.pos().forEach(r => {
-		elem("div", t4, "", JSON.stringify(r))
-	})
+	function row(s, _1, a, b, c, d, _0, e, f, g, h, v, angle) {
+		const tr = elem("tr", t0)
+		elem("td", tr, "num " + s[0], s[1])
+		elem("td", tr, "m num", _1)
+		elem("td", tr, "m num", a)
+		elem("td", tr, "m num", b)
+		elem("td", tr, "m num", c)
+		elem("td", tr, "m num", d)
+		elem("td", tr)
+		elem("td", tr, "m num", _0)
+		elem("td", tr, "m num", e)
+		elem("td", tr, "m num", f)
+		elem("td", tr, "m num", g)
+		elem("td", tr, "m num", h)
+		elem("td", tr, "num", v)
+		elem("td", tr, "num a", angle || "")
+	}
+
+	//                 1     a     b     c     d     0     e     f     g     h  
+	row([" ", " "],    0,    0,    0,    0,    0,    0,    0,    0,    0,    0, "0", 0)
+	row(["r", "1"], "+1", "  ", "  ", "  ", "  ", "+1", "  ", "  ",   "", "  ", "")
+	row([" ", " "],    1,    0,    0,    0,    0,    1,    0,    0,    0,    0, "A", 3)
+	row(["b","16"], "  ", "  ", "  ", "+1", "  ", "  ", "  ", "  ", "+1", "  ", "")
+	row([" ", " "],    1,    0,    0,    1,    0,    1,    0,    0,    1,    0, "B", 2)
+	row(["r", "5"], "  ", "+1", "  ", "  ", "  ", "  ", "-1", "  ",   "", "  ", "")
+	row([" ", " "],    1,    1,    0,    1,    0,    1,   -1,    0,    1,    0, "C", 4)
+	row(["b","10"], "-1", "  ", "  ", "  ", "  ", "-1", "  ", "  ", "  ", "  ", "")
+	row([" ", " "],    0,    1,    0,    1,    0,    0,   -1,    0,    1,    0, "D", 3)
+	row(["r", "7"], "  ", "  ", "  ", "-1", "  ", "  ", "  ", "  ", "-1", "  ", "")
+	row([" ", " "],    0,    1,    0,    0,    0,    0,   -1,    0,    0,    0, "E", 2)
+	row(["b","14"], "  ", "-1", "  ", "  ", "  ", "  ", "+1", "  ", "  ", "  ", "")
+	row([" ", " "],    0,    0,    0,    0,    0,    0,    0,    0,    0,    0, "0", "")
+
+
+
+
+
 }
 
 
