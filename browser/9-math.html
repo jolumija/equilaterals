@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>9 symmetries</title>
+<script type="text/javascript" src="geom.js"></script>
 <script type="text/javascript" src="equilateral.js"></script>
 <style type="text/css">
 caption { border-bottom: 1px solid gray; margin:10px 5px 0 5px; }
@@ -13,6 +14,7 @@ td { font-family: courier; }
 .m { color:magenta; font-weight: bold; }
 .num { text-align: right; }
 .inline { display:inline-block; vertical-align: top; }
+svg { border:1px solid gray; }
 </style>
 </head>
 <body>
@@ -20,160 +22,13 @@ td { font-family: courier; }
 <pre id="pre"></pre>
 <div id="links"></div>
 <object type="image/svg+xml" data="9a.svg"></object> 
+<div id="figure"></div>
 <div id="post"></div>
  </div>
 </body>
 
 <script type="text/javascript">
 
-const Geom = function(n) 
-{
-	const symm = 3 + 2*n
-	const symm2 = parseInt(symm/2)
-
-	const m = Math.PI / symm
-	const angles = {
-		all: [],
-		m: m,
-	}
-	for (let a=1; a < symm; a++) 
-		angles.all.push(a); // [1,2,...8]
-	const as = []
-	for (let a=0; a <= (symm-1)/2; ++a) 
-		as.push(a) // [0,1,2,3,4]
-	angles.cos = as.map(a => { return Math.cos(a*m) })
-	angles.sin = as.map(a => { return Math.sin(a*m) })
-
-
-	// symm=9 (x=>angles, y=>segments)
-	// angle =>   1  2  3  4  5  6  7  8   red blue
-	//                                     === ====
-	// seg 0 => [ 8, 7, 6, 5, 4, 3, 2, 1 ]  1   10
-	// seg 1 => [ 0, 8, 7, 6, 5, 4, 3, 2 ]  2   11
-	// seg 2 => [ 1, 0, 8, 7, 6, 5, 4, 3 ]  3   12
-	// seg 3 => [ 2, 1, 0, 8, 7, 6, 5, 4 ]  4   13
-	// seg 4 => [ 3, 2, 1, 0, 8, 7, 6, 5 ]  5   14
-	// seg 5 => [ 4, 3, 2, 1, 0, 8, 7, 6 ]  6   15
-	// seg 6 => [ 5, 4, 3, 2, 1, 0, 8, 7 ]  7   16
-	// seg 7 => [ 6, 5, 4, 3, 2, 1, 0, 8 ]  8   17
-	// seg 8 => [ 7, 6, 5, 4, 3, 2, 1, 0 ]  9   18 
-	const rows = []
-	for (let r=0; r < symm; r++) { // segments
-		const cols = []
-		const first = symm + r
-		for (let c=1; c < symm; c++) // angles
-			cols.push((first - c)%symm)
-		rows.push(cols)
-	}
-	const segments = []
-	rows.forEach(row => {
-		segments.push({
-			next: row.map(r => { return r+symm })
-		})
-	})
-	rows.forEach(row => {
-		segments.push({
-			next:row
-		})
-	})
-
-
-	const xs = []
-	const ys = []
-	const L = ["a","b","c","d","e","f","g","h","i","j","k","l","m"]
-	xs.push("1") // cos(0)
-	ys.push("0") // cos(1)
-	{
-		let c = 0
-		for (let x=0; x < symm2; x++, c++) { 
-			xs.push(L[c]) 
-		}
-		for (let y=0; y < symm2; y++, c++) { 
-			ys.push(L[c]) 
-		}
-	}
-	function array(i) {
-		const rows = []
-		for (let a=0; a < symm2 + 1; a++) {
-			const cols = []
-			for (let b=0; b < symm2 + 1; b++)
-				cols.push((a == b) ? i : 0)
-			rows.push(cols)
-		}
-		return rows
-	}
-	const plus = array(+1)
-	const minus = array(-1)
-
-	//console.log("plus", JSON.stringify(plus, null, 2))
-	//console.log("minus", JSON.stringify(minus, null, 2))
-
-
-	const positions = [] // 1,15,2,16,3,17,4...
-	{
-		const xyp = []
-		xyp.push(0) // 1,0
-		for (let i=1; i <= 4; i++) { xyp.push(i) }
-		for (let i=4; i >= 1; i--) { xyp.push(i) }
-
-		for (let i=0; i < 2*symm; i++) {
-			const p = { }
-			if (i%2==0) {
-				p.seg = 1 + (i)/2
-				p.clazz = "r"
-			} else {
-				const diff = ((i+9)/2) % 9
-				p.seg = 1 + 9 + diff
-				p.clazz = "b"
-			}
-			const pos = xyp[i%symm]
-			const x = (i < symm/2) || (i > 3*symm/2) // ok
-			const y = !(i < symm) // ok
-			positions.push(p)
-
-			const seg = p.seg - 1
-			segments[seg].x = x ? plus[pos] : minus[pos]
-			segments[seg].y = y ? plus[pos] : minus[pos]
-			segments[seg].pos = {
-				p: pos,
-				x: x,
-				y: y
-			}
-		}
-	}
-	//segments.forEach(s => {
-	//	console.log("segment", JSON.stringify(s))
-	//})
-
-
-	this.toString = function() { return `Geom n=${n} symm=${symm}` }
-	this.symmetry = function() { return symm }
-	this.segments = function() { return segments }
-	this.rows     = function() { return rows }
-	this.angles   = function() { return angles }
-
-	this.xs = function() { return xs }
-	this.ys = function() { return ys }
-
-	this.zero = function() { // return new copies
-		const zero = []
-		for (let a=0; a < symm2 + 1; a++)
-			zero.push(0)
-		return zero
-	}
-
-	this.pos = function() { return positions }
-
-	this.add = function(base, incr) {
-		for (let i=0; i < base.length; i++) {
-			base[i] += incr[i]
-		}
-	}
-
-	this.segmentClass = function(s) {
-		return s < symm ? "r" : "b"
-	}
-}
 
 const g = new Geom(3)
 const angles = g.angles()
@@ -228,28 +83,6 @@ const table_3 = elem("div", links, "inline")
 	})
 }
 
-/*{
-	const t4 = elem("table", table_2)
-	elem("caption", t4, "", "segments")
-	function row(a, p, b) {
-		const tr = elem("tr", t4)
-		elem("td", tr, a[0], a[1])
-		elem("td", tr, "", p)
-		elem("td", tr, "m", b)
-	}
-	const xs = g.xs()
-	const ys = g.ys()
-
-	row(["","segment"], "p", "~x,~y")
-	g.pos().forEach(r => {
-		const p = r.p
-		const x = r.x ? "+" : "-"
-		const y = r.y ? "+" : "-"
-		const xy = `${x}${xs[p]},${y}${ys[p]}`
-		row([r.clazz + " num",r.seg], p, xy)
-	})
-}*/
-
 {
 	function row(t, a, b, c) {
 		const tr = elem("tr", t)
@@ -263,17 +96,74 @@ const table_3 = elem("div", links, "inline")
 
 	const t1 = elem("table", table_3)
 	elem("caption", t1, "", "x coordinates")
-	const cos = [ "1", "a", "b", "c", "d" ]
+	const cos = g.xs()//[ "1", "a", "b", "c", "d" ]
 	for (let i=0; i < cos.length; i++) {
 		row(t1, cos[i], `cos(${i}*m)`, angles.cos[i])
 	}
 	const t2 = elem("table", table_3)
 	elem("caption", t2, "", "y coordinates")
-	const sin = [ "0", "e", "f", "g", "h" ]
+	const sin = g.ys()//[ "0", "e", "f", "g", "h" ]
 	for (let i=0; i < sin.length; i++) {
 		row(t2, sin[i], `sin(${i}*m)`, angles.sin[i])
 	}
 }
+
+const SVG = function(parent, min, max)
+{
+	const minX   = min.x
+	const minY   = min.y
+	const width  = max.x - min.x
+	const height = max.y - min.y
+    const xmlns = "http://www.w3.org/2000/svg";
+
+    const svg = document.createElementNS(xmlns, "svg")
+    svg.setAttributeNS(null, "viewBox", `${minX} ${minY} ${width} ${height}`)
+    svg.setAttributeNS(null, "width", width)
+    svg.setAttributeNS(null, "height", height)
+    svg.style.display = "block"
+    parent.appendChild(svg)
+
+	function elem(type, parent, clazz, text, attrs) {
+		var e = document.createElementNS(xmlns, type)
+		if (parent) 
+			parent.appendChild(e)
+		if (clazz) 
+			e.setAttribute("class", clazz)
+		if (text) 
+			e.appendChild(document.createTextNode(text))
+		if (attrs) 
+			for (attr in attrs) 
+				e.setAttribute(attr, attrs[attr])
+		return e
+	}
+
+	this.polyline = function(points, s) {
+		const p = points.map(p => { 
+			return `${p.x},${p.y}`
+		})
+		var style = []
+		if (s.stroke)
+			style.push("stroke:" + s.stroke + ";")
+		if (s.fill)
+			style.push("fill:" + s.fill + ";")
+		if (s.opacity)
+			style.push("fill-opacity:" + s.opacity + ";")
+		if (s.strokeWidth)
+			style.push("stroke-width:" + s.strokeWidth + ";")
+		return elem("polyline", svg, null, null, {
+			points: p.join(" "),
+			style: style.join(" ")
+		})
+	}
+}
+
+
+
+
+
+
+
+
 
 {
 	const t0 = elem("table", $("post"))
@@ -283,48 +173,82 @@ const table_3 = elem("div", links, "inline")
 	g.xs().forEach(x => { elem("th", tr, "num", x) })
 	g.ys().forEach(y => { elem("th", tr, "num", y) })
 	elem("td", tr, "", "vertex")
+	elem("td", tr, "", "x")
+	elem("td", tr, "", "y")
 
-	function row(angle, s, xs, ys, v) {
+	function row(angle, s, xs, ys, v, x, y) {
 		const tr = elem("tr", t0)
 		elem("td", tr, "num a", angle)
 		elem("td", tr, "num " + s[0], s[1])
 		xs.forEach(x => { elem("td", tr, "m num", x) })
 		ys.forEach(y => { elem("td", tr, "m num", y) })
 		elem("td", tr, "num", v)
+		elem("td", tr, "", x)//g.x(xs))
+		elem("td", tr, "", y)//g.y(ys))
 	}
 	const seg = g.segments()
 
 
-	const figure = [
-		{ angle:0, vertex:"A" },
-		{ angle:3, vertex:"B" },
-		{ angle:2, vertex:"C" },
-		{ angle:4, vertex:"D" },
-		{ angle:3, vertex:"E" },
-		{ angle:2, vertex:"0" }
+	const rowVertex = function(v) {
+		row("", [" ", " "], v.xy[0], v.xy[1], v.id + " (" + v.n + ")", v.x, v.y)
+	}
+
+
+	const figure = [ 0, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3,
+		5
+		//1, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5,
+		//1, 3, 5, 1, 8
 	]
+	//[ 0, 3, 2, 4, 3, 2 ]
 
-	const x0 = g.zero()
-	const y0 = g.zero()
-	row("", [" ", " "], x0, y0, "0")
+	const vs = g.vertices(g.zero(), g.zero())
 
-	let lastSeg = 0
-	figure.forEach(f => {
-		const a = f.angle
+
+	const v = vs.add(g.zero(), g.zero())
+	rowVertex(v)
+	
+	let last = 0
+	figure.forEach(a => {
 		if (a <= 0) {
-			lastSeg = 0
+			last = 0
 		} else {
-			lastSeg = seg[lastSeg].next[a-1]
+			last = seg[last].next[a-1]
 		}
-		const s = lastSeg
+		const s = last
 		const x = seg[s].x
 		const y = seg[s].y
-		g.add(x0, x)
-		g.add(y0, y)
-		const clazz = g.segmentClass(s)
-		row( a, [clazz, s+1],  x,  y)
-		row("", [   "",  ""], x0, y0, f.vertex)
+		const v = vs.add(x, y)
+
+		row( a, [g.segmentClass(s), s+1],  x,  y, " ", " ")
+		rowVertex(v)
 	})
+
+	const lines = vs.lines()
+	const margin = 1
+	const zoom = 30
+	const min = {
+		x: zoom*(lines.min.x - margin),
+		y: zoom*(lines.min.y - margin)
+	}
+	const max = {
+		x: zoom*(lines.max.x + margin),
+		y: zoom*(lines.max.y + margin)
+	}
+	const points = lines.polyline.map(p => {
+		return {
+			x: zoom*p.x,
+			y: zoom*p.y
+		}
+	})
+
+	const svg = new SVG($("figure"), min, max)
+	svg.polyline(points, {
+		stroke:"#f00", 
+		fill:"#f88", 
+		opacity:"#fff", 
+		strokeWidth:2
+	})
+
 }
 
 /*
