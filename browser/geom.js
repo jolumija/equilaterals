@@ -110,10 +110,6 @@ const Geom = function(n)
 			}
 		}
 	}
-	//segments.forEach(s => {
-	//	console.log("segment", JSON.stringify(s))
-	//})
-
 
 	this.toString = function() { return `Geom n=${n} symm=${symm}` }
 	this.symmetry = function() { return symm }
@@ -130,6 +126,7 @@ const Geom = function(n)
 			zero.push(0)
 		return zero
 	}
+	const g = this
 
 	this.pos = function() { return positions }
 
@@ -139,16 +136,16 @@ const Geom = function(n)
 		}
 	}
 
-	this.segmentClass = function(s) {
+	const segmentClass = function(s) {
 		return s < symm ? "r" : "b"
 	}
 
-	this.vertices = function(x0, y0)
+	this.Vertices = function(x0, y0)
 	{
 		const min = { x:+Number.MAX_VALUE, y:+Number.MAX_VALUE }
 		const max = { x:-Number.MAX_VALUE, y:-Number.MAX_VALUE }
-		const array = []
-		const map = {}
+		const vertices = {}
+	
 		const x = function() {
 			let x = 0
 			let pos = 0
@@ -171,12 +168,14 @@ const Geom = function(n)
 			if (y > max.y) max.y = y;
 			return y
 		}
+		
 		let n=0
-		this.add = function(xs, ys) {
+		
+		const addVertex = function(xs, ys, figureIds) {
 			for (let i=0; i < x0.length; i++) {	x0[i] += xs[i] }
 			for (let i=0; i < y0.length; i++) {	y0[i] += ys[i] }
 			const id = JSON.stringify([x0,y0])
-			if (!map[id]) {
+			if (!vertices[id]) {
 				const data = {
 					id: id,
 					xy: JSON.parse(id), // last copy
@@ -184,25 +183,121 @@ const Geom = function(n)
 					y: y(),
 					n: n++
 				}
-				map[id] = data
+				vertices[id] = data
 			}
-			array.push(map[id])
-			return map[id]
+			if (figureIds)
+				figureIds.push(id)
+			return vertices[id]
 		}
-		this.lines = function() {
-			const polyline = []
-			array.forEach(data => {
-				polyline.push({
-					x: data.x,
-					y: data.y
-				})
-			})
+
+		this.vertex = function(id) {
+			return vertices[id]
+		}
+
+		this.limits = function(lim) {
+			const margin = lim.margin || 1
+			const zoom = lim.zoom || 30
 			return {
-				min: min,
-				max: max,
-				polyline: polyline
+				min: {
+					x: zoom*(min.x - margin),
+					y: zoom*(min.y - margin)
+				},
+				max: {
+					x: zoom*(max.x + margin),
+					y: zoom*(max.y + margin)
+				}
 			}
 		}
-		return this
+
+		this.Figure = function() 
+		{
+			let last = 0
+			const ids = []
+			const adds = []
+
+			const self = this
+
+			this.init = function(segments) {
+				ids.push(segments[0])
+				ids.push(segments[1])
+				const v = vertices[segments[1]]
+				console.log("v", JSON.stringify(v.xy))
+				for (let i=0; i < x0.length; i++) {	x0[i] = v.xy[0][i] }
+				for (let i=0; i < y0.length; i++) {	y0[i] = v.xy[1][i] }
+				last = 6
+				self.add(3)
+				self.add(4)
+				self.add(2)
+				self.add(3)
+				self.add(4)
+
+			}
+
+			this.segments = function(pos) {
+				return [
+					ids[pos], 
+					ids[pos-1]
+				]
+			}
+
+			this.add0 = function(x, y) {
+				return addVertex(x, y, ids)
+			}
+
+			this.add = function(angle) {
+				const newAdd = {
+					angle:angle,
+					last1:last,
+					id1: ids[ids.length-1]
+				}
+				if (angle <= 0) {
+					last = 0
+				} else {
+					last = segments[last].next[angle-1]
+				}
+				const x = segments[last].x
+				const y = segments[last].y
+				const v = addVertex(x, y, ids)
+
+				newAdd.id2 = ids[ids.length-1]
+				newAdd.last2 = last
+				newAdd.v = v
+				adds.push(newAdd)
+				return v
+			}
+
+			this.last = function() {
+				return {
+					clazz: segmentClass(last),
+					segment: last + 1,
+					x: segments[last].x,
+					y: segments[last].y
+				}
+			}
+
+			this.polyline = function(ZOOM) {
+				const polyline = []
+				ids.forEach(id => {
+					const data = vertices[id]
+					if (data) {
+						polyline.push({
+							x: ZOOM * data.x,
+							y: ZOOM * data.y
+						})
+					}
+				})
+				return polyline
+			}
+
+			this.xys = function() {
+				return ids.map(id => {
+					return vertices[id]
+				})
+			}
+
+			this.adds = function() {
+				return adds
+			}
+		}
 	}
 }
