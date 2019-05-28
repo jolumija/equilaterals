@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Girih</title>
+<script src="elems.js"></script>
+<style type="text/css">
+* {
+	font-family: sans-serif;
+}
+.editor {
+	background-color: #ff8;
+	height: 400px;
+	width: 100%;
+}		
+.footer {
+	background-color: #123;
+	height: 50px;
+	color: #fff;
+}
+.buttons {
+	display: flex;
+	padding: 5px;
+}
+.buttons > * {
+	margin:5px;
+	color: #def;
+	padding: 5px;
+}
+.label {
+	background-color: transparent;
+}
+.button {
+	background-color: #345;
+}
+.button:hover {
+	background-color: #567;
+	cursor: pointer;
+}
+.mark {
+	color: #0f0;
+	font-weight: bold;
+}
+
+</style>
+</head>
+<body>
+<div id="parent">
+
+</div>
+<script type="text/javascript">
+const parent = $("parent")
+const footer = elem("div", parent, "footer", null, {})
+const editor = elem("div", parent, "editor", null, {})
+
+const actions = {
+	zoom: (params)=> {
+		console.log("zoom", params)
+	},
+	pan: (params)=> {
+		console.log("pan", params)
+	},
+	select: (params)=> {
+		console.log("select", params)
+	},
+	change: (params)=> {
+		console.log("change", params)
+	},
+	move: (params)=> {
+		console.log("move", params)
+	},
+	rotate: (params)=> {
+		console.log("rotate", params)
+	},
+	add: (params)=> {
+		console.log("add", params)
+	},
+	remove: (params)=> {
+		console.log("remove", params)
+	}
+}
+
+const states = {
+	Init: [
+		{ name: "Zoom",  c:"Z", next:"Zoom"},
+		{ name: "Pan",   c:"P", next:"Pan" },
+		{ name: "Edit",  c:"E", next:"Edit" },
+		{ name: "Clear", c:"C", next:"Clear" },
+	],
+	Zoom: [
+		{ name: "+", c:"+", action:"zoom", params:["+"] },
+		{ name: "1", c:"1", action:"unit", params:["1"] },
+		{ name: "-", c:"-", action:"zoom", params:["-"] },
+		{ name: "X", c:"X", next:"Init" },
+	],
+	Pan: [
+		{ name: "Up",     c:"U", action:"pan", params:["U"] },
+		{ name: "Right",  c:"R", action:"pan", params:["R"] },
+		{ name: "Center", c:"C", action:"pan", params:["C"] },
+		{ name: "Down",   c:"D", action:"pan", params:["D"] },
+		{ name: "Left",   c:"L", action:"pan", params:["L"] },
+		{ name: "X", c:"X", next:"Init" },
+	],
+	Clear: [ 
+		{ name: "Yes", c:"Y", next:"Init", action:"remove", params:["all"], next:"Init" },
+		{ name: "X",   c:"X", next:"Init" }
+	],
+	Edit: [
+		{ name: "Select", c:"S", next:"Select" },
+		{ name: "Add",    c:"A", next:"Add"    },
+		{ name: "Delete", c:"D", next:"Delete" },
+		{ name: "X",      c:"X", next:"Init"   }
+	],
+	Select: [
+		{ name: "Origen",   c:"O", next:null, action:"select", params:["vertex", "first"] },
+		{ name: "Forms",    c:"F", next:"Forms" },
+		{ name: "Vertices", c:"V", next:"Vertices" },
+		{ name: "X",        c:"X", next:"Edit" }
+	],
+	Add: [
+		{ name: "Change",   c:"C", action:"change" },
+		{ name: "Move",     c:"M", action:"move"   },
+		{ name: "Rotate",   c:"R", action:"rotate" },
+		{ name: "Yes",      c:"Y", action:"add", next:"Select" },
+		{ name: "X",        c:"X", next:"Edit" }
+	],
+	Delete: [
+		{ name: "Yes",      c:"Y", action:"delete", params:["selected"], next:"Edit" },
+		{ name: "X",        c:"X", next:"Edit" }
+	],
+	Forms: [
+		{ name: "First",    c:"F", action:"select", params:["form", "first"] },
+		{ name: "Next",     c:"N", action:"select", params:["form", "next"] },
+		{ name: "Previous", c:"P", action:"select", params:["form", "previous"] },
+		{ name: "Last",     c:"L", action:"select", params:["form", "last"] },
+		{ name: "X",        c:"X", next:"Select" }
+	],
+	Vertices: [
+		{ name: "First",    c:"F", action:"select", params:["vertex", "first"    ] },
+		{ name: "Next",     c:"N", action:"Select", params:["vertex", "next"     ] },
+		{ name: "Previous", c:"P", action:"select", params:["vertex", "previous" ] },
+		{ name: "Last",     c:"L", action:"select", params:["vertex", "last"     ] },
+		{ name: "X",        c:"X", next:"Select" }
+	]
+}
+
+
+const keyListener = document.getElementsByTagName('body')[0]
+new Footer(keyListener, footer, states, actions)
+</script>
+</body>
+</html>

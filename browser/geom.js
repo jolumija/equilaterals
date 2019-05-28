@@ -217,27 +217,33 @@ const Geom = function(n)
 
 			const self = this
 
-			this.init = function(segments) {
-				ids.push(segments[0])
-				ids.push(segments[1])
-				const v = vertices[segments[1]]
-				console.log("v", JSON.stringify(v.xy))
+			this.init = function(segments, _last, angles) {
+				ids.push(segments.a)
+				ids.push(segments.b)
+				//console.log("segments", JSON.stringify(segments))
+				const v = vertices[segments.b]
+				//console.log("v", JSON.stringify(v.xy))
 				for (let i=0; i < x0.length; i++) {	x0[i] = v.xy[0][i] }
 				for (let i=0; i < y0.length; i++) {	y0[i] = v.xy[1][i] }
-				last = 6
-				self.add(3)
+				last = _last
+				angles.forEach(angle => {
+					self.add(angle)
+				})
+				/*self.add(3)
 				self.add(4)
 				self.add(2)
 				self.add(3)
-				self.add(4)
+				self.add(4)*/
 
 			}
 
 			this.segments = function(pos) {
-				return [
-					ids[pos], 
-					ids[pos-1]
-				]
+				return {
+					a: ids[pos], 
+					b: ids[pos-1],
+					c: adds[pos],
+					d: adds[pos-1]
+				}
 			}
 
 			this.add0 = function(x, y) {
@@ -263,6 +269,7 @@ const Geom = function(n)
 				newAdd.last2 = last
 				newAdd.v = v
 				adds.push(newAdd)
+				console.log("add newAdd", newAdd)
 				return v
 			}
 

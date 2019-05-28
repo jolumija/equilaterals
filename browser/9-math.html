@@ -19,11 +19,12 @@ svg { border:1px solid gray; }
 </style>
 </head>
 <body>
-<div>@ic28</div>
+<div>@ja28</div>
+<div id="figure-debug"></div>
+<div id="figure"></div>
 <pre id="pre"></pre>
 <div id="links"></div>
 <object type="image/svg+xml" data="9a.svg"></object> 
-<div id="figure"></div>
 <div id="post"></div>
  </div>
 </body>
@@ -146,7 +147,6 @@ const table_3 = elem("div", links, "inline")
 	}
 
 
-	const figure = [ 0, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5 ]
 
 	const vertices = new g.Vertices(g.zero(), g.zero())
 
@@ -154,6 +154,7 @@ const table_3 = elem("div", links, "inline")
 	const v = f1.add0(g.zero(), g.zero())
 	//rowVertex(v) // debug
 	
+	const figure = [ 0, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3/*, 5*/ ]
 	figure.forEach(a => {
 		const v = f1.add(a)
 		//const last = f1.last() // debug
@@ -161,32 +162,19 @@ const table_3 = elem("div", links, "inline")
 		//rowVertex(v) // debug
 	})
 
+	const x = [3,4,2,3/*,4*/]
 
-	const f2 = new vertices.Figure()
-	f2.add0(g.zero(), g.zero())
-	path2 = [ 0, 5, 3, 5 ]
-	path3 = [ 6,6,6,6,6 ]
-	path2.forEach(a => { f2.add(a) })
-	path3.forEach(b => { f2.add(b) })
+	const seg2 = f1.segments(2)
+	const seg3 = f1.segments(4)
+	const seg4 = f1.segments(6)
+	const seg5 = f1.segments(8)
 
+	$("figure-debug").innerHTML = JSON.stringify(seg2)
 
-	const adds1 = f1.adds()
-	//adds1.forEach(d => { console.log(JSON.stringify(d)) })
-	const five = adds1[5]
-	console.log("five", JSON.stringify(five))
-
-	const five1 = vertices.vertex(five.id1)
-	const five2 = vertices.vertex(five.id2)
-
-	console.log("five1", JSON.stringify(five1))
-	console.log("five2", JSON.stringify(five2))
-
-
-	const seg6 = f1.segments(6)
-	const f3 = new vertices.Figure()
-	f3.init(seg6)
-
-
+	const f2 = new vertices.Figure(); f2.init(seg2, 4, x) // 4
+	const f3 = new vertices.Figure(); f3.init(seg3, 5, x) // 5
+	const f4 = new vertices.Figure(); f4.init(seg4, 6, x) // 6
+	const f5 = new vertices.Figure(); f5.init(seg5, 7, x) // 7
 
 	const ZOOM = 30
 	const lim = vertices.limits({
@@ -195,26 +183,20 @@ const table_3 = elem("div", links, "inline")
 	})
 	const svg = new SVG($("figure"), lim.min, lim.max)
 
-	svg.polyline(f1.polyline(ZOOM), {
-		stroke:"#f00", 
-		fill:"#f88", 
-		opacity:"0.5", 
-		strokeWidth:2
-	})
-
-	svg.polyline(f2.polyline(ZOOM), {
-		stroke:"#00f", 
-		fill:"#88f", 
-		opacity:"0.5", 
-		strokeWidth:3
-	})
-
-	svg.polyline(f3.polyline(ZOOM), {
-		stroke:"#0f0", 
-		fill:"#8f8", 
-		opacity:"0.5", 
-		strokeWidth:3
-	})
+	colors = [ "#f00", "#888", "#f80", "#0f0", "#00f" ]
+	function style(i,fill) {
+		return {
+			stroke:colors[i], 
+			fill:fill || "#abc", 
+			opacity:"0.5", 
+			strokeWidth:2
+		}
+	}
+	svg.polyline(f1.polyline(ZOOM), style(0,"#f88"))
+	svg.polyline(f2.polyline(ZOOM), style(1))
+	svg.polyline(f3.polyline(ZOOM), style(2))
+	svg.polyline(f4.polyline(ZOOM), style(3))
+	svg.polyline(f5.polyline(ZOOM), style(4))
 }
 
 /*
