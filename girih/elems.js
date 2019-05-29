@@ -16,26 +16,43 @@ const elem = (type, parent, clazz, text, attrs)=> {
 	return e
 }
 
-const Footer = function(keyListener, footer, states, actions) 
+const $style = (e, styles)=> {
+	Object.keys(styles || {}).forEach(k => {
+		e.style[k] = styles[k]
+	})
+}
+
+const Footer = function(keyListener, footer, states, action) 
 {
 	let state = null
 	let keys = []
 
 	const change = (row)=> {
-		if (row.action) {
-			const a = actions[row.action]
-			if (a && typeof a === "function")
-				a(row.params)
-		}
+		action(row.key, row.action)
 		setState(row.next)
 	}
 
-	const keyCode = (code)=> {
-		keys.forEach(k => {
-			if (code == "Key" + k.c) {
-				change(k)
-	      	}
-		})
+	const keyCode = (e)=> {
+		for (let a=0; a < keys.length; a++) {
+			const k = keys[a]
+			const match = (code)=> {
+				if (!code)
+					return false
+				if (e.key.toUpperCase() == code.toUpperCase()) {
+					change(k)
+					return true
+				}
+			}
+			if (Array.isArray(k.c)) {
+				for (let i=0; i < k.c.length; i++) {
+					if (match(k.c[i]))
+						return
+				}
+			} else {
+				if (match(k.c))
+					return
+			}
+		}
 	}
 
 	const setState = (key)=> {
@@ -48,20 +65,33 @@ const Footer = function(keyListener, footer, states, actions)
 		keys = []
 		state.forEach(row => {
 			const btn = elem("div", buttons, "button")
+			let found = false
 			row.name.split("").forEach(l => {
-				const clazz = l == row.c ? "mark" : null
+				const c = (Array.isArray(row.c)) ? row.c[0] : row.c
+				let clazz = ""
+				if (!found) {
+					if (l == c) {
+						found = true
+						clazz = "mark"
+					}
+				}
 				elem("span", btn, clazz, l)
 			})
-			btn.onclick = ()=> {
-				change(row)
+			const r = {
+				key: key,
+				c: row.c,
+				action: row.action,
+				next: row.next
 			}
-			keys.push(row)
+			btn.onclick = ()=> {
+				change(r)
+			}
+			keys.push(r)
 		})
 	}
 	setState("Init")
 	keyListener.onkeyup = function(e) {
-	    const ev = e || event
-	    keyCode(ev.code)
+	    keyCode(e || event)
 	}
 }
 

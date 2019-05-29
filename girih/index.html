@@ -3,13 +3,13 @@
 <head>
 <title>Girih</title>
 <script src="elems.js"></script>
+<script src="gui.js"></script>
 <style type="text/css">
 * {
 	font-family: sans-serif;
 }
 .editor {
-	background-color: #ff8;
-	height: 400px;
+	position: relative;
 	width: 100%;
 }		
 .footer {
@@ -25,6 +25,8 @@
 	margin:5px;
 	color: #def;
 	padding: 5px;
+	user-select: none;
+	white-space: nowrap;
 }
 .label {
 	background-color: transparent;
@@ -41,6 +43,23 @@
 	font-weight: bold;
 }
 
+.fade {
+	position: absolute;
+	background-color: transparent;
+	color: #888;
+	top: 5px;
+	left: 5px;
+    opacity: 1;
+    -webkit-transition: opacity 1000ms linear;
+    transition: opacity 1000ms linear;
+}
+
+.canvas {
+	background-color: #ffe;
+	width: 800px;
+	height: 600px;
+}
+
 </style>
 </head>
 <body>
@@ -52,100 +71,94 @@ const parent = $("parent")
 const footer = elem("div", parent, "footer", null, {})
 const editor = elem("div", parent, "editor", null, {})
 
-const actions = {
-	zoom: (params)=> {
-		console.log("zoom", params)
-	},
-	pan: (params)=> {
-		console.log("pan", params)
-	},
-	select: (params)=> {
-		console.log("select", params)
-	},
-	change: (params)=> {
-		console.log("change", params)
-	},
-	move: (params)=> {
-		console.log("move", params)
-	},
-	rotate: (params)=> {
-		console.log("rotate", params)
-	},
-	add: (params)=> {
-		console.log("add", params)
-	},
-	remove: (params)=> {
-		console.log("remove", params)
-	}
+const gui = new Gui(editor)
+
+const C = {
+	PLUS:   [ "+", "ArrowUp" ],
+	UNIT:   [ "1", "Home"  ],
+	MINUS:  [ "-", "ArrowDown" ],
+	UP:     [ "U", "ArrowUp" ],
+	RIGHT:  [ "R", "ArrowRight" ],
+	CENTER: [ "C", "Home" ],
+	DOWN:   [ "D", "ArrowDown" ],
+	LEFT:   [ "L", "ArrowLeft" ],
+	YES:    [ "Y", "Enter" ],
+	X:      [ "X", "Escape" ],
+	DELETE: [ "D", "Delete" ],
+	FIRST:  [ "F", "Home" ],
+	NEXT:   [ "N", "ArrowRight" ],
+	PREV:   [ "P", "ArrowLeft" ],
+	LAST:   [ "L", "End" ]
 }
 
-const states = {
+const states = 
+{
 	Init: [
-		{ name: "Zoom",  c:"Z", next:"Zoom"},
-		{ name: "Pan",   c:"P", next:"Pan" },
-		{ name: "Edit",  c:"E", next:"Edit" },
-		{ name: "Clear", c:"C", next:"Clear" },
+		{ name:"New",    c:"N", action:["new"], next:"New"   },
+		{ name:"Save",   c:"S", action:["save"], next:"Save" },
+		{ name:"Form",   c:"F", next:"Form"   },
+		{ name:"Select", c:"e", next:"Select" },
+		{ name:"Zoom",   c:"Z", next:"Zoom"   },
+		{ name:"Pan",    c:"P", next:"Pan"    },
+	],
+	New: [ 
+		{ name:"Yes", c:C.YES, next:"Init", action:["yes"] },
+		{ name:"X",   c:C.X,   next:"Init", action:["cancel"] }
+	],
+	Save: [ 
+		{ name:"Yes", c:C.YES, next:"Init", action:["yes"] },
+		{ name:"X",   c:C.X,   next:"Init", action:["cancel"] }
 	],
 	Zoom: [
-		{ name: "+", c:"+", action:"zoom", params:["+"] },
-		{ name: "1", c:"1", action:"unit", params:["1"] },
-		{ name: "-", c:"-", action:"zoom", params:["-"] },
-		{ name: "X", c:"X", next:"Init" },
+		{ name:"+", c:C.PLUS,  action:["+"] },
+		{ name:"1", c:C.UNIT,  action:["1"] },
+		{ name:"-", c:C.MINUS, action:["-"] },
+		{ name:"X", c:C.X,     next:"Init"  },
 	],
 	Pan: [
-		{ name: "Up",     c:"U", action:"pan", params:["U"] },
-		{ name: "Right",  c:"R", action:"pan", params:["R"] },
-		{ name: "Center", c:"C", action:"pan", params:["C"] },
-		{ name: "Down",   c:"D", action:"pan", params:["D"] },
-		{ name: "Left",   c:"L", action:"pan", params:["L"] },
-		{ name: "X", c:"X", next:"Init" },
-	],
-	Clear: [ 
-		{ name: "Yes", c:"Y", next:"Init", action:"remove", params:["all"], next:"Init" },
-		{ name: "X",   c:"X", next:"Init" }
-	],
-	Edit: [
-		{ name: "Select", c:"S", next:"Select" },
-		{ name: "Add",    c:"A", next:"Add"    },
-		{ name: "Delete", c:"D", next:"Delete" },
-		{ name: "X",      c:"X", next:"Init"   }
+		{ name:"Up",     c:C.UP,     action:["U"] },
+		{ name:"Right",  c:C.RIGHT,  action:["R"] },
+		{ name:"Center", c:C.CENTER, action:["C"] },
+		{ name:"Down",   c:C.DOWN,   action:["D"] },
+		{ name:"Left",   c:C.LEFT,   action:["L"] },
+		{ name:"X",      c:C.X,      next:"Init"  },
 	],
 	Select: [
-		{ name: "Origen",   c:"O", next:null, action:"select", params:["vertex", "first"] },
-		{ name: "Forms",    c:"F", next:"Forms" },
-		{ name: "Vertices", c:"V", next:"Vertices" },
-		{ name: "X",        c:"X", next:"Edit" }
+		{ name:"Vertices", c:"V", next:"Vertices" },
+		{ name:"Forms",    c:"F", next:"Forms" },
+		{ name:"X",        c:C.X, next:"Init" }
 	],
-	Add: [
-		{ name: "Change",   c:"C", action:"change" },
-		{ name: "Move",     c:"M", action:"move"   },
-		{ name: "Rotate",   c:"R", action:"rotate" },
-		{ name: "Yes",      c:"Y", action:"add", next:"Select" },
-		{ name: "X",        c:"X", next:"Edit" }
-	],
-	Delete: [
-		{ name: "Yes",      c:"Y", action:"delete", params:["selected"], next:"Edit" },
-		{ name: "X",        c:"X", next:"Edit" }
+	Form: [
+		{ name:"Change", c:"C",      action:["change"] },
+		{ name:"Move",   c:"M",      action:["move"]   },
+		{ name:"Rotate", c:"R",      action:["rotate"] },
+		{ name:"Add",    c:"A",      action:["add"],    next:"Select" },
+		{ name:"X",      c:C.X,      next:"Init" }
 	],
 	Forms: [
-		{ name: "First",    c:"F", action:"select", params:["form", "first"] },
-		{ name: "Next",     c:"N", action:"select", params:["form", "next"] },
-		{ name: "Previous", c:"P", action:"select", params:["form", "previous"] },
-		{ name: "Last",     c:"L", action:"select", params:["form", "last"] },
-		{ name: "X",        c:"X", next:"Select" }
+		{ name:"First",    c:C.FIRST,  action:["first"] },
+		{ name:"Next",     c:C.NEXT,   action:["next"] },
+		{ name:"Previous", c:C.PREV,   action:["prev"] },
+		{ name:"Last",     c:C.LAST,   action:["last"] },
+		{ name:"Delete",   c:C.DELETE, action:["delete"], next:"Delete" },
+		{ name:"X",        c:C.X,      next:"Select" }
+	],
+	Delete: [
+		{ name:"Yes", c:C.YES, next:"Form", action:[] },
+		{ name:"X",   c:C.X,   next:"Form" }
 	],
 	Vertices: [
-		{ name: "First",    c:"F", action:"select", params:["vertex", "first"    ] },
-		{ name: "Next",     c:"N", action:"Select", params:["vertex", "next"     ] },
-		{ name: "Previous", c:"P", action:"select", params:["vertex", "previous" ] },
-		{ name: "Last",     c:"L", action:"select", params:["vertex", "last"     ] },
-		{ name: "X",        c:"X", next:"Select" }
+		{ name:"First",    c:C.FIRST, action:["first"] },
+		{ name:"Next",     c:C.NEXT,  action:["next"] },
+		{ name:"Previous", c:C.PREV,  action:["prev"] },
+		{ name:"Last",     c:C.LAST,  action:["last"] },
+		{ name:"X",        c:C.X,     next:"Select" }
 	]
 }
 
 
 const keyListener = document.getElementsByTagName('body')[0]
-new Footer(keyListener, footer, states, actions)
+new Footer(keyListener, footer, states, gui.action)
 </script>
 </body>
 </html>
